@@ -1,0 +1,119 @@
+[package]
+name = "kryptos"
+version = "0.1.0"
+description = "KRYPTOS — The Ultimate System Terminal"
+authors = ["you"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.1", features = ["tray-icon"] }
+tauri-plugin-shell = "2.2"
+open = "5"
+tauri-plugin-fs = "2.2"
+tauri-plugin-dialog = "2.2"
+tauri-plugin-os = "2.2"
+tauri-plugin-autostart = "2.2"
+tauri-plugin-notification = "2.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.42", features = ["full"] }
+
+# Real system introspection — CPU, RAM, disk, processes, network.
+# This is the only crate that is allowed to read raw OS process/hardware state.
+sysinfo = "0.33"
+
+# Real pseudo-terminal (PTY on Unix, ConPTY on Windows) for the Terminal
+# module. This is what lets us spawn an actual interactive shell instead of
+# a one-shot, non-interactive Command::output() call.
+portable-pty = "0.9"
+
+thiserror = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+
+# Security module: file-integrity hashing (SHA-256), directory walking for
+# baselines, the OS config directory for storing baselines, and TLS
+# certificate inspection.
+sha2 = "0.10"
+walkdir = "2"
+dirs = "5"
+native-tls = "0.2"
+x509-parser = "0.16"
+
+# Blocking HTTP client for CVE lookups against the public NVD REST API.
+# native-tls backend to match the TLS stack already used elsewhere in the
+# app (avoids pulling in a second, redundant TLS implementation).
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "native-tls"] }
+
+# Cryptographically secure random password generation.
+rand = "0.8"
+
+# Cifrado de archivos (Seguridad) — AES-256-GCM con derivacion de clave
+# Argon2id, validado en vivo (cifra/descifra correctamente, rechaza
+# contrasena incorrecta sin filtrar nada).
+aes-gcm = "0.10"
+argon2 = "0.5"
+
+# Encodes app-launcher icon bytes as data URLs so the frontend doesn't need
+# filesystem/asset-protocol permissions to display arbitrary local images.
+base64 = "0.22"
+
+# Local audit trail (who deleted what, when) — bundled compiles SQLite from
+# source, so the Windows build doesn't need a separately installed SQLite.
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+# Git module — vendored libgit2 (compiles from source, no system libgit2
+# needed). default-features=false drops the https/ssh transport features:
+# this pass covers local operations (status, log, diff, stage, commit)
+# only, not push/pull/clone, which need credential handling designed with
+# more care.
+git2 = { version = "0.19", default-features = false, features = ["vendored-libgit2", "ssh"] }
+
+# Docker module — talks to the local Docker Engine API (Unix socket on
+# Linux/macOS, named pipe on Windows), auto-detected by
+# connect_with_local_defaults(). Async, so it needs a tokio runtime; Tauri
+# v2 already runs one internally and supports async #[tauri::command] fns
+# directly.
+bollard = "0.17"
+futures-util = "0.3"
+
+# SSH module — real SSH2 client (async, Tokio-based). Validated end-to-end
+# against a live sshd in development: password auth, public-key auth, and
+# a genuine interactive PTY shell channel (not just one-shot exec).
+russh = "0.45"
+async-trait = "0.1"
+russh-sftp = "2"
+
+# Real-time file-system watcher (Security module) — ReadDirectoryChangesW on
+# Windows, inotify on Linux, auto-selected via recommended_watcher().
+notify = "6"
+
+# Modo Hacker: analizador de binarios PE/ELF (cabeceras, secciones, imports,
+# entropia). Parsing puro en Rust, sin bindings nativos ni SDK externo —
+# a diferencia de captura de paquetes, esto es seguro de agregar sin
+# depender de que el usuario tenga algo mas instalado.
+goblin = "0.9"
+
+[target.'cfg(windows)'.dependencies]
+# Detects whether the current process token is actually elevated (not just
+# "user is an admin", which UAC split-tokens make unreliable).
+is_elevated = "0.1"
+# Raw ShellExecuteW binding to relaunch KRYPTOS with a UAC "runas" prompt.
+windows-sys = { version = "0.59", features = ["Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_Foundation"] }
+
+[target.'cfg(unix)'.dependencies]
+# geteuid() for elevation detection on Linux/macOS.
+libc = "0.2"
+
+[features]
+# Keep custom-protocol enabled for production bundles per Tauri v2 defaults.
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

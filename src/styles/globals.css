@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(176, 0, 32, 0.06), transparent),
+      #050505;
+  }
+
+  ::selection {
+    background: rgba(255, 59, 59, 0.28);
+    color: #fff;
+  }
+
+  /* Thin, dark, terminal-grade scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1c1c1c;
+    border-radius: 8px;
+    border: 2px solid #050505;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2a2a2a;
+  }
+
+  :focus-visible {
+    outline: 2px solid #ff3b3b;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-panel border border-border rounded-lg shadow-panel;
+  }
+
+  .glass {
+    @apply bg-panel/70 backdrop-blur-sm border border-border;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 18px rgba(255, 59, 59, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

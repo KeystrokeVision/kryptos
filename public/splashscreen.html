@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>KRYPTOS</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+      }
+      .panel {
+        position: relative;
+        width: 520px;
+        height: 300px;
+        background: #050505;
+        border: 1px solid rgba(255, 59, 59, 0.35);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.6),
+          0 20px 60px -12px rgba(0, 0, 0, 0.8),
+          0 0 40px -10px rgba(255, 59, 59, 0.35);
+        opacity: 0;
+        animation: panel-in 0.5s ease-out forwards;
+      }
+      @keyframes panel-in {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      body.fade-out .panel {
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s ease;
+        opacity: 0;
+        transform: scale(1.03);
+      }
+      canvas#rain {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.55;
+      }
+      .scanlines {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 3px);
+        mix-blend-mode: overlay;
+      }
+      .content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 20px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .brand img {
+        width: 30px;
+        height: 30px;
+        filter: drop-shadow(0 0 10px rgba(255, 59, 59, 0.6));
+      }
+      .brand-text {
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        color: #eaeaea;
+        text-transform: uppercase;
+      }
+      .brand-text b {
+        color: #ff3b3b;
+      }
+      #boot-log {
+        flex: 1;
+        font-size: 11px;
+        line-height: 1.65;
+        color: rgba(255, 59, 59, 0.85);
+      }
+      .boot-line {
+        opacity: 0;
+        animation: line-in 0.18s ease-out forwards;
+      }
+      .boot-line:last-child::after {
+        content: "_";
+        margin-left: 2px;
+        animation: blink 1s step-end infinite;
+      }
+      @keyframes line-in {
+        from {
+          opacity: 0;
+          transform: translateY(2px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      .wordmark {
+        text-align: right;
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        color: rgba(234, 234, 234, 0.4);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      .wordmark.show {
+        opacity: 1;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .panel {
+          animation: none;
+          opacity: 1;
+        }
+        .boot-line {
+          animation: none;
+          opacity: 1;
+        }
+        .boot-line:last-child::after {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <canvas id="rain"></canvas>
+      <div class="scanlines"></div>
+      <div class="content">
+        <div class="brand">
+          <img src="/logo-mark-red.png" alt="KRYPTOS" draggable="false" />
+          <span class="brand-text"><b>KRYPTOS</b> // terminal de seguridad</span>
+        </div>
+        <div id="boot-log"></div>
+        <div class="wordmark">SISTEMA LISTO</div>
+      </div>
+    </div>
+    <script src="/splashscreen.js"></script>
+  </body>
+</html>

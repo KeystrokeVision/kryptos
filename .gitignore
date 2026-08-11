@@ -1,0 +1,19 @@
+node_modules/
+dist/
+tsconfig.tsbuildinfo
+
+# Tauri / Rust
+src-tauri/target/
+src-tauri/gen/
+
+# env / logs
+.env
+.env.local
+*.log
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db

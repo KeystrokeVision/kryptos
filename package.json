@@ -1,0 +1,49 @@
+{
+  "name": "kryptos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "KRYPTOS — The Ultimate System Terminal",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.0",
+    "zustand": "^5.0.2",
+    "@tanstack/react-query": "^5.62.0",
+    "framer-motion": "^11.15.0",
+    "lucide-react": "^0.469.0",
+    "@monaco-editor/react": "^4.6.0",
+    "monaco-editor": "^0.55.0",
+    "xterm": "^5.3.0",
+    "xterm-addon-fit": "^0.8.0",
+    "xterm-addon-search": "^0.13.0",
+    "xterm-addon-web-links": "^0.9.0",
+    "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/plugin-shell": "^2.2.0",
+    "@tauri-apps/plugin-fs": "^2.2.0",
+    "@tauri-apps/plugin-dialog": "^2.2.0",
+    "@tauri-apps/plugin-os": "^2.2.0",
+    "@tauri-apps/plugin-autostart": "^2.2.0",
+    "@tauri-apps/plugin-notification": "^2.2.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.5",
+    "class-variance-authority": "^0.7.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "KRYPTOS",
+  "version": "0.1.0",
+  "identifier": "com.kryptos.terminal",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "KRYPTOS — The Ultimate System Terminal",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 640,
+        "decorations": false,
+        "transparent": false,
+        "center": true,
+        "visible": false,
+        "dragDropEnabled": false
+      },
+      {
+        "label": "splashscreen",
+        "url": "splashscreen.html",
+        "width": 520,
+        "height": 300,
+        "decorations": false,
+        "transparent": true,
+        "center": true,
+        "alwaysOnTop": true,
+        "resizable": false,
+        "shadow": false,
+        "skipTaskbar": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ]
+  }
+}
