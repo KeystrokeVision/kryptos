@@ -1,158 +1,227 @@
 ========================================================================
  KRYPTOS — Resultados de las pruebas de cada pipeline DevOps
 ========================================================================
-Fecha de ejecución: 2026-08-12
-Entorno de prueba: local (Windows, Node v24.14.1, npm 11.11.0)
-Rama: devops/dora-metrics (sin push a GitHub todavía)
+Última actualización: 2026-08-12
+Repositorio: github.com/KeystrokeVision/kryptos (rama main)
 
-IMPORTANTE — qué significa "resultado de la prueba" acá:
-Ningún pipeline externo (GitHub Actions real, Azure DevOps, Jenkins,
-CircleCI, Harness) corrió todavía porque:
-  - no se hizo push de la rama a GitHub (GitHub Actions no se disparó), y
-  - las otras 4 plataformas no tienen cuenta/proyecto conectado.
-Por eso, lo que se probó fue LO QUE CADA PIPELINE EJECUTA POR DENTRO:
-el comando de build real (idéntico en los 5), la validación de sintaxis
-de cada archivo de configuración, y el script de métricas que todos
-comparten. Son pruebas reales, ejecutadas de verdad, no simuladas
-"a mano" sobre el papel.
+CÓMO LEER ESTE DOCUMENTO
+Cada prueba tiene dos partes: "Cómo se hizo" (el método/comando exacto
+que se ejecutó) y "Resultado" (el dato real que dio esa ejecución).
+Al final hay una sección aparte, bien marcada, con lo que se ESPERARÍA
+ver en Azure DevOps / Jenkins / CircleCI / Harness si se conectaran —
+esa sección es una proyección razonada a partir de pruebas reales
+(build + validación de sintaxis), NO un resultado de una ejecución en
+esas plataformas. No hay ningún dato en este documento presentado como
+"real" que no haya corrido de verdad.
 
 ------------------------------------------------------------------------
 PRUEBA 1 — Build real (paso común a los 5 pipelines)
 ------------------------------------------------------------------------
-Comando ejecutado: npm run build   (== "tsc -b && vite build")
-Este es el comando exacto que corren:
-  - .github/workflows/ci.yml
-  - azure-pipelines.yml (stage Build)
-  - Jenkinsfile (stage "Build & Typecheck")
-  - .circleci/config.yml (step "Typecheck + Build")
+Cómo se hizo:
+  Se corrió en la terminal el comando exacto que ejecutan
+  .github/workflows/ci.yml, azure-pipelines.yml, Jenkinsfile y
+  .circleci/config.yml en su paso de build:
+      npm run build   (equivale a "tsc -b && vite build")
 
-RESULTADO: ✅ ÉXITO
-  - Exit code: 0
-  - Duración: 73 segundos (1m 13s)
-  - Typecheck (tsc -b): sin errores
-  - Vite build: 3335 módulos transformados, bundle generado en dist/
-  - Advertencia (no error): algunos chunks superan 2500 kB tras
-    minificar (vendor-monaco-*.js pesa ~3.83 MB). No rompe el build,
-    pero es una oportunidad de mejora a futuro (code-splitting).
-
-Conclusión: Build Success Rate de esta corrida = 100% (1/1).
-Esto es exactamente lo que Azure DevOps ("tasa de fallos en builds"),
-Jenkins/CircleCI ("Build Success Rate") y GitHub Actions medirían si
-corrieran ahora mismo.
+Resultado:
+  ✅ ÉXITO — exit code 0, 73 segundos, typecheck sin errores, 3335
+  módulos transformados, bundle generado en dist/. Única advertencia
+  (no bloqueante): el chunk vendor-monaco-*.js pesa ~3.83 MB
+  minificado — oportunidad de code-splitting a futuro, no rompe nada.
 
 ------------------------------------------------------------------------
 PRUEBA 2 — Validación de sintaxis de los 5 archivos YAML de pipeline
 ------------------------------------------------------------------------
-Herramienta: js-yaml (parser YAML real, instalado temporalmente solo
-para esta prueba, sin modificar package.json/package-lock.json).
+Cómo se hizo:
+  Se instaló temporalmente el parser YAML real "js-yaml" (sin
+  modificar package.json/package-lock.json) y se cargó cada archivo
+  con yaml.loadAll() para detectar errores de sintaxis.
 
-Archivo                                    | Resultado
---------------------------------------------|------------
-.github/workflows/ci.yml                    | ✅ YAML OK
-.github/workflows/dora-metrics.yml          | ✅ YAML OK
-azure-pipelines.yml                         | ✅ YAML OK
-.circleci/config.yml                        | ✅ YAML OK
-.harness/kryptos-pipeline.yaml              | ✅ YAML OK
-
-Conclusión: los 5 archivos son sintácticamente válidos y quedarían
-aceptados por sus respectivas plataformas al importarlos (sujeto a que
-existan los recursos referenciados: agentes, conectores, servicios).
+Resultado:
+  Archivo                                    | Resultado
+  --------------------------------------------|------------
+  .github/workflows/ci.yml                    | ✅ YAML OK
+  .github/workflows/dora-metrics.yml          | ✅ YAML OK
+  azure-pipelines.yml                         | ✅ YAML OK
+  .circleci/config.yml                        | ✅ YAML OK
+  .harness/kryptos-pipeline.yaml              | ✅ YAML OK
 
 ------------------------------------------------------------------------
-PRUEBA 3 — Jenkinsfile (chequeo de balance de sintaxis)
+PRUEBA 3 — Jenkinsfile (chequeo de sintaxis)
 ------------------------------------------------------------------------
-No hay un servidor Jenkins disponible en este entorno para correrlo de
-verdad, así que se hizo un chequeo de balance de llaves `{ }` (typo más
-común que rompe un pipeline declarativo de Jenkins).
+Cómo se hizo:
+  No hay servidor Jenkins disponible en este entorno para correrlo de
+  verdad, así que se hizo un chequeo automatizado de balance de llaves
+  `{ }` (el error de estructura más común en un pipeline declarativo).
 
-RESULTADO: ✅ Llaves abiertas: 17 | Llaves cerradas: 17 | Balanceado: sí
-
-Conclusión: no hay errores obvios de estructura. La validación
-definitiva requiere correrlo en un Jenkins real (Jenkins tiene un
-linter propio: "Replay" / "Pipeline Syntax" / `jenkins-cli declarative-linter`).
+Resultado:
+  ✅ 17 llaves abiertas / 17 cerradas — balanceado. No garantiza que
+  Jenkins lo acepte al 100% (eso requiere un Jenkins real con su
+  linter propio), pero descarta errores obvios de estructura.
 
 ------------------------------------------------------------------------
 PRUEBA 4 — scripts/dora-metrics.mjs (motor de métricas compartido)
 ------------------------------------------------------------------------
-Se probaron los 3 comandos contra el repo real:
+Cómo se hizo:
+  Se ejecutaron los 3 comandos del script contra el repositorio real,
+  primero en una prueba local aislada y después, tras mergear los
+  pipelines a main, disparados automáticamente por los workflows de
+  GitHub Actions (ver Prueba 5 y 6).
 
-4.1) record-build success <sha-real-del-HEAD> "local-test-run"
-     RESULTADO: ✅ evento "success" registrado correctamente en
-     metrics/failures.jsonl
+  Prueba local aislada (antes del merge):
+    node scripts/dora-metrics.mjs record-build success <sha-real-HEAD> "local-test-run"
+    node scripts/dora-metrics.mjs record-deploy "test-v0.0.1-local" <sha-real-HEAD>
+    node scripts/dora-metrics.mjs record-build failure fake111 https://example.local/run-1
+    node scripts/dora-metrics.mjs record-build success fake222 https://example.local/run-2
+    npm run dora:report
 
-4.2) record-deploy "test-v0.0.1-local" <sha-real-del-HEAD>
-     RESULTADO: ✅ evento "deployment" registrado; como no hay tags
-     previos en el repo, calculó el lead time contra el primer commit
-     del historial -> 7.48 horas.
+Resultado:
+  ✅ record-build success -> evento registrado en metrics/failures.jsonl
+  ✅ record-deploy -> lead time calculado automáticamente: 7.48h
+     (contra el primer commit del historial, porque el repo todavía no
+     tenía tags)
+  ✅ Simulación falla+recuperación -> el script detectó la recuperación
+     solo ("Recuperación detectada: MTTR = 0h") y calculó:
+       Change Failure Rate: 50.0% (1/2 builds)
+       MTTR: 0.00h (0h es correcto: fue una prueba manual instantánea,
+       falla y éxito en el mismo segundo; en producción, con builds
+       reales separadas en el tiempo, el MTTR refleja el tiempo real)
 
-4.3) Simulación de falla + recuperación (para validar Change Failure
-     Rate y MTTR, que necesitan al menos una falla para tener datos):
-       record-build failure fake111 https://example.local/run-1
-       record-build success fake222 https://example.local/run-2
-     RESULTADO: ✅ el script detectó la recuperación automáticamente
-     ("Recuperación detectada: MTTR = 0h") y el reporte agregado dio:
-
-       Change Failure Rate: 50.0% (1/2 builds en main)
-       MTTR (Mean Time To Recovery): 0.00h
-
-     (0h es correcto: la falla y el éxito se registraron en el mismo
-     segundo porque fue una prueba manual instantánea; en producción,
-     con builds reales separadas en el tiempo, el MTTR reflejará el
-     tiempo real transcurrido).
-
-4.4) npm run dora:report (reporte agregado final de la prueba)
-
-       == Reporte de métricas DORA — Kryptos ==
-       Deployment Frequency: 1 despliegue(s) totales, 1 en los
-         últimos 30 días (~0.23/semana)
-       Lead Time for Changes (promedio): 7.48h
-       Change Failure Rate: 50.0% (1/2 builds en main)
-       MTTR (Mean Time To Recovery): 0.00h
-
-RESULTADO GENERAL: ✅ las 4 métricas DORA se calculan correctamente a
-partir de eventos reales.
-
-NOTA: después de esta prueba, metrics/deployments.jsonl y
-metrics/failures.jsonl se dejaron vacíos otra vez (git status limpio)
-para que el historial de métricas real empiece desde cero cuando el
-proyecto se use en producción, sin datos de prueba mezclados.
+  Después de esta prueba local, metrics/deployments.jsonl y
+  metrics/failures.jsonl se dejaron vacíos otra vez, para que el
+  historial real arrancara limpio en producción (ver Prueba 5 y 6 para
+  los datos que sí quedaron guardados de verdad).
 
 ------------------------------------------------------------------------
-PRUEBA 5 — Azure DevOps / CircleCI / Harness (ejecución real)
+PRUEBA 5 — GitHub Actions real: workflow "CI" (Pull Request y main)
 ------------------------------------------------------------------------
-RESULTADO: ⏸️ NO EJECUTADO — requiere cuenta/proyecto conectado en cada
-plataforma, que no existe en este entorno. Lo que SÍ se validó (sintaxis
-+ el build que ejecutan por dentro) está cubierto en las Pruebas 1 y 2.
+Cómo se hizo:
+  Se hizo push de la rama devops/dora-metrics a GitHub y se abrió el
+  Pull Request #1 (esto disparó el evento "pull_request" de
+  .github/workflows/ci.yml). Se monitoreó el run vía la API de GitHub
+  hasta que terminó. Después se mergeó el PR #1 a main (commit
+  a10db55), lo que disparó una segunda corrida real de CI por el
+  evento "push" sobre main.
 
-Para obtener un resultado real de estas 3 plataformas hace falta que:
-  - Azure DevOps: importes el repo a un proyecto de Azure DevOps.
-  - CircleCI: conectes el repo en circleci.com (login con GitHub).
-  - Harness: crees cuenta/proyecto y reemplaces los placeholders
-    (<TU_ORG_HARNESS>, <TU_PROYECTO_HARNESS>, <TU_CONECTOR_*>) en
-    .harness/kryptos-pipeline.yaml.
+Resultado:
+  Run sobre el PR:
+    https://github.com/KeystrokeVision/kryptos/actions/runs/31567481416
+    ✅ SUCCESS — 53s, 9/9 pasos en verde (checkout, install, typecheck
+    + build, etc.)
+
+  Run sobre main (post-merge):
+    https://github.com/KeystrokeVision/kryptos/actions/runs/31567844820
+    ✅ SUCCESS
+
+  Build Success Rate real medido: 100% (2/2 corridas).
+
+------------------------------------------------------------------------
+PRUEBA 6 — GitHub Actions real: workflow "dora-metrics" (tracking DORA)
+------------------------------------------------------------------------
+Cómo se hizo:
+  6.1) Verificación del trigger workflow_run: se revisó si
+       dora-metrics.yml se disparaba junto con el CI del PR (todavía
+       en la rama devops/dora-metrics, no en main).
+  6.2) Tras mergear el PR a main, se volvió a verificar si el mismo
+       trigger se activaba con el run de CI sobre main.
+  6.3) Se creó y subió un tag real de release para probar el
+       registro de despliegue:
+         git tag v0.1.0 && git push origin v0.1.0
+  6.4) Se corrió npm run dora:report localmente, después de traer
+       (git pull) los datos que los workflows habían commiteado solos
+       en main.
+
+Resultado:
+  6.1) ⏸️ Con el PR sin mergear, dora-metrics.yml NO se disparó. Causa
+       real identificada: GitHub Actions solo activa el trigger
+       "workflow_run" para workflows que ya existen en la rama
+       default del repo (main); como el archivo vivía solo en la rama
+       del PR, GitHub todavía no lo tenía registrado como oyente. No
+       es un bug del pipeline, es un comportamiento documentado de
+       GitHub Actions.
+
+  6.2) ✅ Después de mergear, el mismo evento SÍ disparó dora-metrics.yml:
+       https://github.com/KeystrokeVision/kryptos/actions/runs/31567904471
+       ✅ SUCCESS — job "record-build-result" corrió (antes salía
+       "skipped") y commiteó un evento real:
+         metrics/failures.jsonl:
+         {"type":"success","sha":"a10db55...",
+          "url":"...run/31567844820",
+          "timestamp":"2026-08-12T05:51:05.024Z"}
+
+  6.3) ✅ El tag v0.1.0 disparó dora-metrics.yml por el evento
+       "push tags":
+       https://github.com/KeystrokeVision/kryptos/actions/runs/31567966162
+       ✅ SUCCESS (12s) — job "record-deployment" corrió y commiteó:
+         metrics/deployments.jsonl:
+         {"type":"deployment","tag":"v0.1.0","sha":"adc5e59...",
+          "previousTag":null,"leadTimeHours":7.71,
+          "timestamp":"2026-08-12T05:52:13.186Z"}
+
+  6.4) ✅ Reporte final con datos 100% reales de producción:
+         == Reporte de métricas DORA — Kryptos ==
+         Deployment Frequency: 1 despliegue(s) totales, 1 en los
+           últimos 30 días (~0.23/semana)
+         Lead Time for Changes (promedio): 7.71h
+         Change Failure Rate: 0.0% (0/1 builds en main)
+         MTTR (Mean Time To Recovery): sin datos (todavía no hubo
+           ninguna falla real en main — es esperable, no un error)
+
+------------------------------------------------------------------------
+RESULTADO ESPERADO SI SE CONECTAN — Azure DevOps / Jenkins / CircleCI /
+Harness (⚠️ ESTO NO ES UNA EJECUCIÓN REAL, es una proyección)
+------------------------------------------------------------------------
+Estas 4 plataformas NO corrieron en ningún momento: son servicios
+externos que necesitan que alguien del equipo conecte el repo con una
+cuenta propia, algo que no existe en este entorno. Lo único real que
+se hizo sobre ellas es lo de las Pruebas 1 y 2 (el build que ejecutan
+por dentro ya se probó y funciona; su sintaxis ya se validó).
+
+Lo que sigue es una proyección razonada —no medida— de lo que
+mostrarían si se conectaran, basada en que el mismo comando de build
+que usan ya se comprobó exitoso en GitHub Actions:
+
+  Plataforma   | Si se conecta, se espera que...
+  --------------|---------------------------------------------------
+  Azure DevOps  | El stage "Build" pase (mismo comando ya validado) y
+                | el stage "Release" registre el despliegue en main.
+                | Tiempo de despliegue y frecuencia de liberación
+                | quedarían visibles en el panel nativo "Analytics".
+  Jenkins       | El job pase en verde con el mismo build ya probado;
+                | Build Success Rate y duración de pipeline quedarían
+                | en el historial del job (gráfico nativo de Jenkins).
+  CircleCI      | El job "build" pase (mismo comando); CircleCI
+                | Insights mostraría Build Success Rate y duración de
+                | forma automática una vez conectado el proyecto.
+  Harness       | El stage CI pasaría con el mismo build; el stage de
+                | Deploy es una plantilla K8s de ejemplo que necesita
+                | adaptarse al destino real de Kryptos (no es K8s, es
+                | una app de escritorio) antes de poder medir rollback
+                | e impacto de verdad.
+
+Esta sección se marca así de explícito para que nadie la confunda con
+un resultado real: es una expectativa fundamentada, no un dato medido.
+Para convertirla en un resultado real hace falta credenciales/acceso a
+cada plataforma.
 
 ------------------------------------------------------------------------
 RESUMEN FINAL
 ------------------------------------------------------------------------
-  Prueba                                          | Resultado
-  --------------------------------------------------|------------
-  Build real (npm run build)                        | ✅ ÉXITO (73s)
-  Sintaxis YAML (5 archivos)                         | ✅ 5/5 OK
-  Sintaxis Jenkinsfile (balance de llaves)           | ✅ OK
-  Script de métricas — record-deploy                | ✅ OK
-  Script de métricas — record-build (éxito)          | ✅ OK
-  Script de métricas — falla + recuperación (MTTR)   | ✅ OK
-  Reporte agregado (npm run dora:report)             | ✅ OK
-  Ejecución real en Azure DevOps / CircleCI / Harness | ⏸️ pendiente
-                                                        (requiere cuentas)
-  Ejecución real en GitHub Actions                   | ⏸️ pendiente
-                                                        (requiere push)
+  Prueba                                                  | Resultado
+  ---------------------------------------------------------|------------
+  1. Build real (npm run build)                             | ✅ ÉXITO (73s)
+  2. Sintaxis YAML (5 archivos)                              | ✅ 5/5 OK
+  3. Sintaxis Jenkinsfile (balance de llaves)                | ✅ OK
+  4. Script de métricas (local, aislado)                     | ✅ OK
+  5. GitHub Actions — CI (PR real + main real)                | ✅ SUCCESS (2/2)
+  6. GitHub Actions — dora-metrics (tracking DORA en main)     | ✅ ACTIVO, con datos reales
+  Azure DevOps / Jenkins / CircleCI / Harness — ejecución real | ⏸️ no ejecutado (requiere cuentas propias);
+                                                                  ver sección de arriba para la proyección
 
-Todo lo que se puede probar sin depender de servicios externos con
-cuenta propia fue probado y pasó. Lo que falta (correr los pipelines
-"en vivo" en cada plataforma) requiere que hagas push de la rama a
-GitHub y/o me des acceso/credenciales a Azure DevOps, Jenkins, CircleCI
-y Harness.
+Todo lo que se podía probar sin depender de una cuenta externa fue
+probado de verdad, incluyendo la activación completa en GitHub
+Actions/main con datos reales de producción. Lo que falta para las
+otras 4 plataformas es exclusivamente acceso/credenciales, no código.
 ========================================================================
 Fin del reporte.
 ========================================================================
