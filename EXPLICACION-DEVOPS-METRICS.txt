@@ -1,0 +1,162 @@
+========================================================================
+ KRYPTOS — Implementación de Métricas DevOps (DORA) — Explicación
+========================================================================
+Fecha: 2026-08-12
+Rama creada: devops/dora-metrics (2 commits locales, NO se hizo push)
+
+------------------------------------------------------------------------
+1. CONTEXTO / QUÉ SE PIDIÓ
+------------------------------------------------------------------------
+Se pidió implementar en el proyecto Kryptos TODO lo descrito en la
+sección "3. Métricas DevOps y Rendimiento Operativo" de la imagen: las
+4 herramientas de la tabla, cada una con sus métricas soportadas.
+
+  Herramienta              | Métricas soportadas
+  --------------------------|--------------------------------------------
+  GitLab / GitHub Actions   | Deployment Frequency, Lead Time, MTTR,
+                             | Change Failure Rate (DORA completas)
+  Azure DevOps              | Tiempo de despliegue, frecuencia de
+                             | liberación, tasa de fallos en builds
+  Jenkins / CircleCI        | Build Success Rate, duración de
+                             | pipelines, análisis de fallos en CI
+  Harness                   | Deployment Frequency, automatización de
+                             | rollbacks, análisis de impacto en
+                             | despliegues
+
+Se implementó UN pipeline por cada herramienta, todos alimentando el
+mismo sistema de registro (metrics/*.jsonl) para que las métricas sean
+comparables entre plataformas.
+
+------------------------------------------------------------------------
+2. ARCHIVOS CREADOS — POR HERRAMIENTA
+------------------------------------------------------------------------
+
+a) GITHUB ACTIONS  (✅ activo — el repo ya vive en GitHub)
+   - .github/workflows/ci.yml
+     Build + typecheck en cada push/PR a main.
+   - .github/workflows/dora-metrics.yml
+     Registra despliegues (al taggear "vX.Y.Z") y resultados de build
+     en main. De ahí salen las 4 métricas DORA completas: Deployment
+     Frequency, Lead Time, MTTR y Change Failure Rate.
+
+b) AZURE DEVOPS  (🧩 plantilla — requiere importar el repo a un
+   proyecto de Azure DevOps para que corra de verdad)
+   - azure-pipelines.yml
+     Stage "Build" (typecheck/build + registra éxito/fallo -> tasa de
+     fallos en builds) y stage "Release" (registra el despliegue ->
+     tiempo de despliegue / frecuencia de liberación).
+
+c) JENKINS  (🧩 plantilla — requiere un controlador Jenkins con
+   plugin NodeJS configurado)
+   - Jenkinsfile
+     Pipeline declarativo: install, build & typecheck, y un bloque
+     "post" que registra el resultado (Build Success Rate) y muestra
+     la duración del pipeline.
+
+d) CIRCLECI  (🧩 plantilla — requiere conectar el repo en
+   circleci.com)
+   - .circleci/config.yml
+     Mismo flujo que Jenkins (install, build, registrar éxito/fallo).
+     CircleCI Insights ya trae de forma nativa Build Success Rate y
+     duración una vez el proyecto está conectado.
+
+e) HARNESS  (🧩 plantilla de referencia — requiere cuenta/proyecto
+   Harness y conectores propios; usa Kubernetes como ejemplo porque
+   es el caso más ilustrativo de rollback/impacto, aunque Kryptos es
+   una app de escritorio y ese stage debería adaptarse al destino real,
+   p. ej. publicar instaladores en GitHub Releases)
+   - .harness/kryptos-pipeline.yaml
+     Stage "Build" (CI) + stage "Deploy" con rollout, rollback
+     automático (K8sRollingRollback + failureStrategies) y un step de
+     "Impact Analysis" (Continuous Verification) para análisis de
+     impacto en despliegues. Deployment Frequency la calcula Harness
+     de forma nativa en su dashboard una vez el pipeline corre ahí.
+
+f) SISTEMA DE MÉTRICAS COMPARTIDO (usado por las 5 plataformas)
+   - scripts/dora-metrics.mjs
+     Script en Node sin dependencias con 3 comandos: record-deploy,
+     record-build, report. Ya probado localmente (simulación de una
+     falla seguida de un éxito -> Change Failure Rate y MTTR se
+     calcularon correctamente).
+   - metrics/deployments.jsonl, metrics/failures.jsonl
+     Log append-only con los eventos crudos.
+   - metrics/README.md
+     Explica el esquema de datos.
+   - package.json
+     Nuevo script: npm run dora:report -> imprime el resumen agregado.
+
+g) DOCUMENTACIÓN DE RESUMEN
+   - DEVOPS.md
+     Tabla con las 4 herramientas, qué archivo las implementa, qué
+     métricas cubre cada una y su estado (activa vs. plantilla), más
+     la explicación de por qué solo GitHub Actions corre "de verdad"
+     hoy.
+
+------------------------------------------------------------------------
+3. POR QUÉ SOLO GITHUB ACTIONS ESTÁ REALMENTE ACTIVO
+------------------------------------------------------------------------
+GitHub Actions corre automáticamente porque el repo YA vive en GitHub
+(KeystrokeVision/kryptos) — no requiere cuenta ni configuración externa.
+
+Azure DevOps, Jenkins y CircleCI son plataformas independientes: sus
+pipelines (azure-pipelines.yml, Jenkinsfile, .circleci/config.yml) son
+válidos y están listos, pero solo se ejecutan si conectás el proyecto a
+esos servicios (importar el repo, dar permisos, tener un
+agente/controlador disponible, etc.). Eso implica credenciales y
+decisiones (¿usar Azure DevOps además de GitHub? ¿tener un servidor
+Jenkins propio?) que no puedo tomar por vos.
+
+Harness, además de requerir cuenta propia, trae placeholders
+(<TU_ORG_HARNESS>, <TU_PROYECTO_HARNESS>, <TU_CONECTOR_*>) que hay que
+completar con datos reales de tu cuenta antes de que el pipeline pueda
+correr.
+
+------------------------------------------------------------------------
+4. CÓMO SE USA A PARTIR DE AHORA
+------------------------------------------------------------------------
+- GitHub Actions ya corre solo con hacer push/PR (una vez subas la
+  rama). Para registrar un release oficial:
+
+      git tag v0.2.0
+      git push origin v0.2.0
+
+- Para activar Azure DevOps / Jenkins / CircleCI: conectar el repo en
+  cada plataforma (yo no tengo esas credenciales ni cuentas, así que
+  ese paso lo tenés que hacer vos o decirme las credenciales/proyecto
+  a usar).
+
+- Para ver el resumen agregado de métricas en cualquier momento:
+
+      npm run dora:report
+
+------------------------------------------------------------------------
+5. ESTADO ACTUAL / QUÉ FALTA DECIDIR
+------------------------------------------------------------------------
+- Todo quedó commiteado en la rama devops/dora-metrics (2 commits),
+  NO se tocó "main" ni se hizo push a GitHub todavía, porque eso
+  dispara Actions reales y es una acción visible hacia afuera.
+- Próximo paso sugerido: revisar los archivos y, si estás de acuerdo,
+  pedirme que haga push de la rama y abra un Pull Request:
+
+      git push -u origin devops/dora-metrics
+
+------------------------------------------------------------------------
+6. ARCHIVOS TOCADOS (resumen completo)
+------------------------------------------------------------------------
+  nuevo   .github/workflows/ci.yml
+  nuevo   .github/workflows/dora-metrics.yml
+  nuevo   azure-pipelines.yml
+  nuevo   Jenkinsfile
+  nuevo   .circleci/config.yml
+  nuevo   .harness/kryptos-pipeline.yaml
+  nuevo   scripts/dora-metrics.mjs
+  nuevo   metrics/README.md
+  nuevo   metrics/deployments.jsonl
+  nuevo   metrics/failures.jsonl
+  nuevo   DEVOPS.md
+  nuevo   EXPLICACION-DEVOPS-METRICS.txt (este archivo)
+  editado package.json (nuevo script "dora:report")
+
+========================================================================
+Fin del reporte.
+========================================================================
