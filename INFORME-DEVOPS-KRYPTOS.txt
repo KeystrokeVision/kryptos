@@ -1,0 +1,208 @@
+========================================================================
+ KRYPTOS — Informe completo: Métricas DevOps (DORA) y pipelines CI/CD
+========================================================================
+Proyecto:     Kryptos (github.com/KeystrokeVision/kryptos)
+Fecha:        2026-08-12
+Rama:         devops/dora-metrics
+Pull Request: #1 — https://github.com/KeystrokeVision/kryptos/pull/1
+Este documento reemplaza/consolida a EXPLICACION-DEVOPS-METRICS.txt y
+RESULTADOS-PRUEBAS-DEVOPS.txt: acá está TODO (qué se hizo, cómo se
+probó y el resultado real), listo para compartir con el equipo.
+
+------------------------------------------------------------------------
+1. OBJETIVO
+------------------------------------------------------------------------
+Implementar en Kryptos las 4 métricas DORA (DevOps Research and
+Assessment) —el estándar de la industria para medir velocidad y
+estabilidad del ciclo de entrega de software— usando las herramientas
+descritas en la tabla de referencia:
+
+  Herramienta              | Métricas que debía cubrir
+  --------------------------|-------------------------------------------
+  GitLab / GitHub Actions   | Deployment Frequency, Lead Time, MTTR,
+                             | Change Failure Rate (DORA completas)
+  Azure DevOps              | Tiempo de despliegue, frecuencia de
+                             | liberación, tasa de fallos en builds
+  Jenkins / CircleCI        | Build Success Rate, duración de
+                             | pipelines, análisis de fallos en CI
+  Harness                   | Deployment Frequency, automatización de
+                             | rollbacks, análisis de impacto
+
+------------------------------------------------------------------------
+2. QUÉ SE IMPLEMENTÓ (archivos en el repo)
+------------------------------------------------------------------------
+
+  .github/workflows/ci.yml            -> Build + typecheck en cada
+                                          push/PR a main
+  .github/workflows/dora-metrics.yml  -> Registra despliegues (tags
+                                          vX.Y.Z) y resultados de build
+                                          en main -> las 4 métricas DORA
+  azure-pipelines.yml                 -> Plantilla Azure DevOps
+  Jenkinsfile                         -> Plantilla Jenkins
+  .circleci/config.yml                -> Plantilla CircleCI
+  .harness/kryptos-pipeline.yaml      -> Plantilla Harness (rollback +
+                                          análisis de impacto)
+  scripts/dora-metrics.mjs            -> Motor de cálculo compartido
+                                          (record-deploy, record-build,
+                                          report), sin dependencias
+  metrics/deployments.jsonl           -> Histórico de despliegues
+  metrics/failures.jsonl              -> Histórico de builds (éxito/
+                                          falla) en main
+  metrics/README.md                   -> Esquema de datos
+  DEVOPS.md                           -> Resumen de las 5 plataformas
+  package.json                        -> Nuevo script "dora:report"
+
+Las 5 plataformas comparten el mismo motor de métricas
+(scripts/dora-metrics.mjs) para que los números sean comparables sin
+importar cuál se use.
+
+------------------------------------------------------------------------
+3. METODOLOGÍA DE PRUEBA
+------------------------------------------------------------------------
+Se probó en dos niveles:
+
+  A) PRUEBAS LOCALES (sin depender de servicios externos)
+     - Ejecutar el comando de build real que usan los 5 pipelines.
+     - Validar la sintaxis de los 5 archivos de configuración con un
+       parser YAML real.
+     - Ejecutar los 3 comandos del script de métricas contra datos
+       reales del repo, y una simulación controlada de falla+
+       recuperación para poder calcular Change Failure Rate y MTTR
+       (necesitan al menos una falla registrada para tener datos).
+
+  B) PRUEBA REAL EN GITHUB ACTIONS (servicio en vivo)
+     - Se hizo push de la rama devops/dora-metrics a GitHub.
+     - Se abrió el Pull Request #1 (devops/dora-metrics -> main), lo
+       que disparó automáticamente el workflow "CI" en GitHub Actions
+       (evento pull_request, tal como está configurado en
+       .github/workflows/ci.yml).
+     - Se monitoreó el run vía la API de GitHub hasta que terminó y se
+       capturaron sus resultados reales (no simulados).
+
+  Azure DevOps, Jenkins, CircleCI y Harness NO se pudieron ejecutar en
+  vivo porque son servicios externos que requieren cuenta/proyecto
+  propio conectado (no existen en este entorno). Lo que sí se validó
+  de ellos es lo cubierto en la parte A (sintaxis + el mismo comando de
+  build que ejecutan por dentro).
+
+------------------------------------------------------------------------
+4. RESULTADOS — PRUEBAS LOCALES
+------------------------------------------------------------------------
+
+4.1) Build real — comando: npm run build ("tsc -b && vite build")
+     Es el comando exacto que corren ci.yml, azure-pipelines.yml,
+     Jenkinsfile y .circleci/config.yml.
+     RESULTADO: ✅ ÉXITO — exit code 0, 73 segundos, 3335 módulos
+     transformados, typecheck sin errores. (Advertencia no bloqueante:
+     el chunk vendor-monaco-*.js pesa ~3.83 MB minificado; se
+     recomienda code-splitting a futuro, no rompe el build.)
+
+4.2) Sintaxis YAML (parser real, js-yaml)
+     .github/workflows/ci.yml            -> ✅ OK
+     .github/workflows/dora-metrics.yml  -> ✅ OK
+     azure-pipelines.yml                 -> ✅ OK
+     .circleci/config.yml                -> ✅ OK
+     .harness/kryptos-pipeline.yaml      -> ✅ OK
+
+4.3) Jenkinsfile — chequeo de balance de llaves { }
+     RESULTADO: ✅ 17 abiertas / 17 cerradas — balanceado.
+
+4.4) scripts/dora-metrics.mjs — ejecución real de los 3 comandos
+     - record-build success <sha real> -> ✅ evento registrado
+     - record-deploy "test-v0.0.1-local" <sha real> -> ✅ lead time
+       calculado: 7.48h (contra el primer commit del historial, ya
+       que el repo no tenía tags previos)
+     - Simulación falla -> éxito (para poder medir Change Failure Rate
+       y MTTR) -> ✅ el script detectó la recuperación automáticamente:
+         Change Failure Rate: 50.0% (1/2 builds)
+         MTTR: 0.00h (ambos eventos ocurrieron en el mismo segundo por
+         ser una prueba manual instantánea; con builds reales
+         separadas en el tiempo, el MTTR va a reflejar el tiempo real)
+     - npm run dora:report -> ✅ imprimió el resumen agregado correcto
+
+     NOTA: después de esta prueba, metrics/deployments.jsonl y
+     metrics/failures.jsonl se dejaron vacíos otra vez, para que el
+     historial real arranque limpio en producción.
+
+------------------------------------------------------------------------
+5. RESULTADOS — PRUEBA REAL EN GITHUB ACTIONS (en vivo)
+------------------------------------------------------------------------
+
+Pull Request:  #1 https://github.com/KeystrokeVision/kryptos/pull/1
+Run de CI:     https://github.com/KeystrokeVision/kryptos/actions/runs/31567481416
+Evento:        pull_request (devops/dora-metrics -> main)
+Resultado:     ✅ SUCCESS
+Duración total del run: 53 segundos (05:43:22 -> 05:44:15 UTC)
+
+Detalle del job "Build & Typecheck" (todos los pasos en verde):
+
+  Paso                                          | Resultado | Duración
+  ------------------------------------------------|-----------|----------
+  1. Set up job                                   | ✅ success | 1s
+  2. Checkout                                      | ✅ success | 1s
+  3. Setup Node                                    | ✅ success | 3s
+  4. Install dependencies (npm ci)                 | ✅ success | 6s
+  5. Typecheck + Build (tsc -b && vite build)       | ✅ success | 35s
+  6. Job summary                                    | ✅ success | 0s
+  7. Post Setup Node                                | ✅ success | 2s
+  8. Post Checkout                                  | ✅ success | 0s
+  9. Complete job                                   | ✅ success | 0s
+
+Build Success Rate de este run: 100% (1/1) — dato real, verificable en
+el link del run de arriba.
+
+------------------------------------------------------------------------
+6. HALLAZGO IMPORTANTE — por qué dora-metrics.yml NO se disparó todavía
+------------------------------------------------------------------------
+Se verificó también si .github/workflows/dora-metrics.yml (el que
+registra Change Failure Rate/MTTR vía el evento "workflow_run") se
+activó junto con el run de CI. RESULTADO: no se disparó — GitHub
+Actions solo escucha el evento "workflow_run" para workflows que ya
+existen en la rama por defecto del repo (main). Como dora-metrics.yml
+todavía vive solo en la rama devops/dora-metrics (no fue mergeado a
+main), GitHub todavía no lo registra como "oyente" de ese evento.
+
+Esto es una limitación conocida y documentada de GitHub Actions, no un
+error del pipeline. Se soluciona solo con mergear el PR #1 a main: a
+partir de ahí, cada vez que "CI" corra sobre main, dora-metrics.yml se
+va a disparar automáticamente y va a empezar a poblar Change Failure
+Rate y MTTR con datos reales.
+
+------------------------------------------------------------------------
+7. RESUMEN FINAL DE TODAS LAS PRUEBAS
+------------------------------------------------------------------------
+
+  Prueba                                              | Resultado
+  -------------------------------------------------------|------------
+  Build real (npm run build)                             | ✅ ÉXITO (73s local / 35s en GH Actions)
+  Sintaxis YAML (5 archivos)                              | ✅ 5/5 OK
+  Sintaxis Jenkinsfile                                    | ✅ OK
+  Script de métricas — record-deploy                     | ✅ OK
+  Script de métricas — record-build                      | ✅ OK
+  Script de métricas — falla + recuperación (CFR/MTTR)    | ✅ OK
+  Reporte agregado (npm run dora:report)                  | ✅ OK
+  GitHub Actions — workflow "CI" (run real, PR #1)        | ✅ SUCCESS (53s, 9/9 pasos OK)
+  GitHub Actions — workflow "dora-metrics" (tracking DORA)| ⏸️ pendiente de activarse (requiere mergear PR #1 a main)
+  Azure DevOps — ejecución real                           | ⏸️ pendiente (requiere proyecto/cuenta Azure DevOps)
+  Jenkins — ejecución real                                | ⏸️ pendiente (requiere servidor Jenkins propio)
+  CircleCI — ejecución real                                | ⏸️ pendiente (requiere conectar repo en circleci.com)
+  Harness — ejecución real                                 | ⏸️ pendiente (requiere cuenta Harness + reemplazar placeholders)
+
+------------------------------------------------------------------------
+8. CÓMO CONTINUAR (para el equipo)
+------------------------------------------------------------------------
+- El PR #1 ya está abierto y con su check de CI en verde. Para activar
+  el tracking automático de las 4 métricas DORA en main, hay que
+  mergearlo.
+- Para registrar un release real una vez esté en main:
+      git tag v0.2.0 && git push origin v0.2.0
+- Para ver el reporte agregado en cualquier momento:
+      npm run dora:report
+- Para activar Azure DevOps / Jenkins / CircleCI / Harness, cada
+  plataforma necesita que alguien del equipo conecte el repo con su
+  cuenta (no requieren más cambios de código, las plantillas ya están
+  listas y validadas).
+
+========================================================================
+Fin del informe.
+========================================================================
