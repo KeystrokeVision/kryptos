@@ -1,0 +1,54 @@
+# CircleCI Config — Kryptos
+# ------------------------------------------------------------------
+# Réplica del pipeline para CircleCI. Cubre, junto con Jenkinsfile, la
+# fila "Jenkins / CircleCI" de la tabla de métricas DevOps:
+#   - Build Success Rate
+#   - Duración de pipelines
+#   - Análisis de fallos en integración continua
+#
+# NOTA: requiere conectar este repo a un proyecto de CircleCI
+# (circleci.com/vcs) para que corra de verdad. Una vez conectado,
+# CircleCI Insights muestra Build Success Rate y duración de forma
+# nativa; aquí además dejamos el registro en metrics/*.jsonl.
+# ------------------------------------------------------------------
+
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:20.10
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - npm-deps-{{ checksum "package-lock.json" }}
+
+      - run:
+          name: Instalar dependencias
+          command: npm ci
+
+      - save_cache:
+          key: npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+
+      - run:
+          name: Typecheck + Build
+          command: npm run build
+
+      - run:
+          name: "Registrar build exitosa (Build Success Rate)"
+          when: on_success
+          command: node scripts/dora-metrics.mjs record-build success "$CIRCLE_SHA1" "$CIRCLE_BUILD_URL"
+
+      - run:
+          name: "Registrar build fallida (análisis de fallos en CI)"
+          when: on_fail
+          command: node scripts/dora-metrics.mjs record-build failure "$CIRCLE_SHA1" "$CIRCLE_BUILD_URL"
+
+workflows:
+  build-and-track:
+    jobs:
+      - build

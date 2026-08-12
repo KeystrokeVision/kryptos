@@ -46,3 +46,11 @@ Imprime un resumen con las 4 métricas calculadas a partir de los archivos
 - `.github/workflows/dora-metrics.yml` — registra despliegues y resultados
   de build para alimentar las 4 métricas DORA.
 - `scripts/dora-metrics.mjs` — lógica de cálculo, sin dependencias externas.
+
+## Multi-plataforma
+
+Este mismo esquema de datos (`deployments.jsonl` / `failures.jsonl`) es
+alimentado también por las plantillas de Azure DevOps, Jenkins, CircleCI
+y Harness ubicadas en la raíz del repo. Ver [`DEVOPS.md`](../DEVOPS.md)
+para el detalle de qué cubre cada plataforma y su estado (activa vs.
+plantilla).

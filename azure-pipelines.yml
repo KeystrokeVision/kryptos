@@ -1,0 +1,70 @@
+# Azure DevOps Pipeline — Kryptos
+# ------------------------------------------------------------------
+# Réplica del pipeline de CI/CD para Azure DevOps. Cubre las métricas
+# de la fila "Azure DevOps" de la tabla de métricas DevOps:
+#   - Tiempo de despliegue
+#   - Frecuencia de liberación (Release Frequency)
+#   - Tasa de fallos en builds
+#
+# NOTA: para que esto corra de verdad hace falta un proyecto en Azure
+# DevOps con este repo importado (o conectado como servicio externo) y
+# un agente con Node disponible. Azure DevOps expone además su propio
+# panel de "Analytics" con estas métricas de forma nativa una vez el
+# pipeline corre ahí; aquí además las dejamos en metrics/*.jsonl para
+# que sean comparables con las demás plataformas.
+# ------------------------------------------------------------------
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: Build
+    displayName: "Build & Typecheck"
+    jobs:
+      - job: Build
+        displayName: "npm ci / build"
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: "20.x"
+            displayName: "Instalar Node 20"
+
+          - script: npm ci
+            displayName: "Instalar dependencias"
+
+          - script: npm run build
+            displayName: "Typecheck + Build (tsc -b && vite build)"
+
+          - script: |
+              node scripts/dora-metrics.mjs record-build success "$(Build.SourceVersion)" "$(Build.BuildUri)"
+            displayName: "Registrar build exitosa (Tasa de fallos en builds)"
+            condition: succeeded()
+
+          - script: |
+              node scripts/dora-metrics.mjs record-build failure "$(Build.SourceVersion)" "$(Build.BuildUri)"
+            displayName: "Registrar build fallida (Tasa de fallos en builds)"
+            condition: failed()
+
+  - stage: Release
+    displayName: "Release (Frecuencia de liberación)"
+    dependsOn: Build
+    condition: |
+      and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: Release
+        displayName: "Registrar liberación"
+        steps:
+          - checkout: self
+          - script: |
+              node scripts/dora-metrics.mjs record-deploy "azdo-$(Build.BuildNumber)" "$(Build.SourceVersion)"
+            displayName: "Registrar despliegue (Tiempo de despliegue / Frecuencia de liberación)"
