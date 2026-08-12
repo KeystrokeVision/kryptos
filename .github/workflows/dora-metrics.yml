@@ -1,0 +1,74 @@
+name: DORA Metrics
+
+# Registra los eventos necesarios para calcular las 4 métricas DORA:
+#   1. Deployment Frequency  -> se dispara al crear un tag "vX.Y.Z" (release)
+#   2. Lead Time for Changes -> calculado en ese mismo momento
+#   3. Change Failure Rate   -> se dispara cuando el workflow "CI" falla en main
+#   4. MTTR (Mean Time To Recovery) -> se dispara cuando "CI" vuelve a pasar
+#      en main después de una falla previa
+#
+# Los datos crudos quedan en metrics/*.jsonl (git-versionados) y se pueden
+# resumir con: npm run dora:report
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  record-deployment:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Registrar despliegue (Deployment Frequency + Lead Time)
+        run: node scripts/dora-metrics.mjs record-deploy "${{ github.ref_name }}" "${{ github.sha }}"
+
+      - name: Commit métricas
+        run: |
+          git config user.name "dora-metrics-bot"
+          git config user.email "actions@github.com"
+          git add metrics/deployments.jsonl
+          git diff --cached --quiet && echo "sin cambios" || git commit -m "chore(metrics): registrar despliegue ${{ github.ref_name }}"
+          git push origin HEAD:main
+
+  record-build-result:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Registrar resultado de build (Change Failure Rate / MTTR)
+        run: |
+          node scripts/dora-metrics.mjs record-build \
+            "${{ github.event.workflow_run.conclusion }}" \
+            "${{ github.event.workflow_run.head_sha }}" \
+            "${{ github.event.workflow_run.html_url }}"
+
+      - name: Commit métricas
+        run: |
+          git config user.name "dora-metrics-bot"
+          git config user.email "actions@github.com"
+          git add metrics/failures.jsonl
+          git diff --cached --quiet && echo "sin cambios" || git commit -m "chore(metrics): registrar resultado de build"
+          git push origin HEAD:main

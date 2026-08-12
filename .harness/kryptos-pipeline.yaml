@@ -1,0 +1,97 @@
+# Harness Pipeline — Kryptos
+# ------------------------------------------------------------------
+# Réplica del pipeline para Harness. Cubre la fila "Harness" de la
+# tabla de métricas DevOps:
+#   - Deployment Frequency
+#   - Automatización de rollbacks
+#   - Análisis de impacto en despliegues
+#
+# IMPORTANTE — esto es una PLANTILLA de referencia:
+#   - Kryptos es una app de escritorio (Tauri), no un servicio
+#     Kubernetes. El stage "Deploy" de abajo usa un ejemplo de
+#     despliegue K8s solo para mostrar cómo se configuran rollback
+#     automático y análisis de impacto (Continuous Verification) en
+#     Harness; si el destino real de Kryptos es, por ejemplo,
+#     publicar un instalador (GitHub Releases), ese stage debe
+#     reemplazarse por un step de tipo "Run"/"Artifact" acorde.
+#   - <TU_ORG_HARNESS>, <TU_PROYECTO_HARNESS> y <TU_CONECTOR_*> son
+#     placeholders: hay que crear una cuenta/proyecto en Harness y
+#     configurar los conectores (Docker registry, Kubernetes, etc.)
+#     antes de que este pipeline pueda ejecutarse.
+#   - Deployment Frequency se obtiene automáticamente del dashboard
+#     nativo de Harness una vez el pipeline corre ahí; no requiere
+#     configuración adicional.
+# ------------------------------------------------------------------
+
+pipeline:
+  name: Kryptos Deployment Pipeline
+  identifier: kryptos_deployment_pipeline
+  projectIdentifier: <TU_PROYECTO_HARNESS>
+  orgIdentifier: <TU_ORG_HARNESS>
+  tags: {}
+  stages:
+    - stage:
+        name: Build
+        identifier: build
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Install & Build
+                  identifier: install_build
+                  spec:
+                    connectorRef: <TU_CONECTOR_DOCKER>
+                    image: node:20
+                    shell: Sh
+                    command: |
+                      npm ci
+                      npm run build
+
+    - stage:
+        name: Deploy
+        identifier: deploy
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes # placeholder — ajustar al destino real de Kryptos
+          service:
+            serviceRef: kryptos_service
+          environment:
+            environmentRef: production
+          execution:
+            steps:
+              - step:
+                  name: Rollout Deployment
+                  identifier: rollout
+                  type: K8sRollingDeploy
+                  spec:
+                    skipDryRun: false
+
+              - step:
+                  name: Impact Analysis (Continuous Verification)
+                  identifier: impact_analysis
+                  type: Verify
+                  spec:
+                    type: Auto
+                    monitoredService:
+                      type: Default
+                    spec:
+                      sensitivity: MEDIUM
+                      duration: 10m
+                      deploymentTag: <+serviceConfig.artifacts.primary.tag>
+
+            rollbackSteps:
+              - step:
+                  name: Rollback Deployment
+                  identifier: rollback
+                  type: K8sRollingRollback
+                  spec: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+        tags: {}

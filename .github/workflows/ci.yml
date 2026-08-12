@@ -1,0 +1,46 @@
+name: CI
+
+# Pipeline de integración continua. Cada corrida es una "build" cuyo resultado
+# (success/failure) y duración alimentan las métricas DORA:
+#   - Build Success Rate
+#   - Duración de pipeline
+# Los resultados de este workflow son leídos por dora-metrics.yml
+# (vía workflow_run) para calcular Change Failure Rate y MTTR.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck + Build (tsc -b && vite build)
+        run: npm run build
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "### Resultado de CI" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Rama: \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Resultado del job: \`${{ job.status }}\`" >> "$GITHUB_STEP_SUMMARY"
