@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "dora:report": "node scripts/dora-metrics.mjs report"
   },
   "dependencies": {
     "react": "^19.0.0",
