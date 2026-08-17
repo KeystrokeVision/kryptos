@@ -34,6 +34,7 @@ import type { CryptoResult } from "@/types/crypto";
 import type { SentinelAlert, SentinelEvent, SentinelStatus, ScanOutcome, SentinelExport, ReconstructedState, SentinelTimeBounds } from "@/types/sentinel";
 import type { HoneytokenInfo } from "@/types/honeytoken";
 import type { ProcessDossier } from "@/types/dossier";
+import type { DbConnectionProfile, DbConnectParams, DbTableInfo, DbColumnInfo, DbQueryResult } from "@/types/database";
 
 export interface CommandOutput {
   success: boolean;
@@ -277,4 +278,34 @@ export const api = {
     invoke<void>("sftp_download_file", { params, remotePath, localPath }),
   sftpUploadFile: (params: SshConnectParams, localPath: string, remotePath: string) =>
     invoke<void>("sftp_upload_file", { params, localPath, remotePath }),
+
+  // Base de datos — ver src-tauri/src/commands/database.rs
+  listDbConnections: () => invoke<DbConnectionProfile[]>("list_db_connections"),
+  addDbConnection: (
+    label: string,
+    engine: string,
+    host: string | undefined,
+    port: number | undefined,
+    username: string | undefined,
+    databaseName: string | undefined,
+    filePath: string | undefined,
+    useTls: boolean
+  ) =>
+    invoke<DbConnectionProfile>("add_db_connection", {
+      label,
+      engine,
+      host,
+      port,
+      username,
+      databaseName,
+      filePath,
+      useTls,
+    }),
+  deleteDbConnection: (id: number) => invoke<void>("delete_db_connection", { id }),
+  dbTestConnection: (params: DbConnectParams) => invoke<string>("db_test_connection", { params }),
+  dbConnect: (sessionId: string, params: DbConnectParams) => invoke<string>("db_connect", { sessionId, params }),
+  dbDisconnect: (sessionId: string) => invoke<void>("db_disconnect", { sessionId }),
+  dbListTables: (sessionId: string) => invoke<DbTableInfo[]>("db_list_tables", { sessionId }),
+  dbListColumns: (sessionId: string, table: string) => invoke<DbColumnInfo[]>("db_list_columns", { sessionId, table }),
+  dbRunQuery: (sessionId: string, sql: string) => invoke<DbQueryResult>("db_run_query", { sessionId, sql }),
 };

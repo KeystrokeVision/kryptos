@@ -96,6 +96,17 @@ notify = "6"
 # depender de que el usuario tenga algo mas instalado.
 goblin = "0.9"
 
+# Modulo Base de datos — clientes reales para PostgreSQL y MySQL (SQLite ya
+# esta cubierto por rusqlite, usado arriba para la base local de KRYPTOS).
+# TLS con native-tls para consistencia con el resto de la app (mismo
+# backend que reqwest y el verificador TLS de Seguridad); with-chrono/
+# with-uuid/with-serde_json habilitan conversion directa de columnas
+# DATE/TIMESTAMP, UUID y JSON/JSONB sin pasar por texto crudo.
+postgres = { version = "0.19", features = ["with-chrono-0_4", "with-serde_json-1", "with-uuid-0_8"] }
+postgres-native-tls = "0.5"
+uuid = "0.8"
+mysql = { version = "28", default-features = false, features = ["minimal", "native-tls"] }
+
 [target.'cfg(windows)'.dependencies]
 # Detects whether the current process token is actually elevated (not just
 # "user is an admin", which UAC split-tokens make unreliable).

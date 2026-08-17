@@ -18,13 +18,14 @@ import Git from "@/pages/Git";
 import Docker from "@/pages/Docker";
 import Ssh from "@/pages/Ssh";
 import Chat from "@/pages/Chat";
+import Database from "@/pages/Database";
 import ModulePlaceholder from "@/pages/ModulePlaceholder";
 
 /**
  * Every tab renders through here. Every module in the original roadmap —
  * Dashboard, Terminal, Security, Apps, Explorer, Processes, Services,
- * Network, Settings, Users, Logs, Editor, Git, Docker, and SSH — is now
- * wired to live data.
+ * Network, Settings, Users, Logs, Editor, Git, Docker, SSH, and Base de
+ * datos — is now wired to live data. Only Plugins is still a placeholder.
  */
 export function ModuleView({ tab }: { tab: Tab }) {
   const mod = MODULES.find((m) => m.id === tab.moduleId)!;
@@ -66,6 +67,8 @@ export function ModuleView({ tab }: { tab: Tab }) {
       return <Ssh />;
     case "chat":
       return <Chat />;
+    case "database":
+      return <Database />;
     default:
       return <ModulePlaceholder icon={mod.icon} title={mod.label} description={mod.description} />;
   }

@@ -36,7 +36,7 @@ Construida con **Tauri v2 (Rust)** en el backend y **React 19 + TypeScript +
 Vite + TailwindCSS** en el frontend. Pensada principalmente para Windows; el
 código en sí es multiplataforma y compila también en Linux/macOS.
 
-**18 módulos** · **~37 archivos de comandos de backend en Rust** · base de
+**18 módulos** · **~38 archivos de comandos de backend en Rust** · base de
 datos **SQLite** local para auditoría e historial · **cero telemetría**.
 
 ## Índice
@@ -137,6 +137,7 @@ vos mismo levantás.
 - **Editor** (Monaco, el motor de VS Code) — pestañas, ~30 lenguajes, explorador de proyecto integrado, botón "Ejecutar" (detecta entornos virtuales de Python), y una **biblioteca de ~30 scripts** listos para abrir y correr
 - **Git** — status, diff, stage/unstage, commit, ramas, historial, y push/pull/fetch por SSH
 - **Docker** — contenedores, imágenes, logs, ciclo de vida completo
+- **Base de datos** — cliente real para **SQLite, PostgreSQL y MySQL** (drivers Rust puros, sin instalar `psql`/`mysql` client aparte): conexiones guardadas (la contraseña nunca se persiste, igual que SSH), explorador de tablas/columnas con llaves primarias, editor SQL (Monaco, resaltado real) con Ctrl+Enter para ejecutar, grilla de resultados con límite de 1000 filas, y confirmación explícita antes de correr cualquier sentencia destructiva (INSERT/UPDATE/DELETE/DROP/ALTER/...)
 
 ### Administración
 
@@ -161,8 +162,10 @@ Todo en KRYPTOS usa datos reales del sistema — sin mocks, sin placeholders
 disfrazados de datos reales. Cada comando de backend habla directo con el
 sistema operativo (`sysinfo`, PowerShell, `/proc`, APIs nativas) o con
 protocolos y servicios reales (SSH real vía `russh`, Git real vía `git2`,
-Docker real vía `bollard`, NVD/Have I Been Pwned/Certificate Transparency vía
-`reqwest`, solo cuando el módulo en cuestión lo pide explícitamente).
+Docker real vía `bollard`, PostgreSQL/MySQL reales vía `postgres`/`mysql`
+(drivers Rust puros, sin cliente nativo instalado aparte), NVD/Have I Been
+Pwned/Certificate Transparency vía `reqwest`, solo cuando el módulo en
+cuestión lo pide explícitamente).
 
 ## Seguridad y consentimiento
 
@@ -229,7 +232,8 @@ kryptos/
 
 - **Captura de paquetes (Wireshark-lite)**: evaluado y descartado por ahora — requeriría **Npcap** instalado por separado, una dependencia Rust nativa nueva (`pnet`/`pcap`) y probablemente permisos de Administrador. Queda como el candidato más grande de Modo Hacker si se retoma más adelante
 - **Auto-actualizador**: todavía sin `tauri-plugin-updater` — cada corrección hoy requiere reinstalar a mano. Necesita además firma de código e infraestructura de releases
-- **Base de datos** y **Plugins**: aparecen en el menú pero siguen siendo placeholder ("módulo en construcción")
+- **Plugins**: sigue siendo placeholder ("módulo en construcción") — no hay todavía un formato de manifiesto ni un mecanismo de carga definido
+- **Base de datos**: el cliente de PostgreSQL/MySQL corre siempre con `sslmode=prefer`/certificado sin validar cuando TLS está activado (igual criterio que el verificador TLS de Seguridad) — no hay todavía soporte para CA propia. Tipos exóticos de columna (arrays, tipos geométricos, enums propios de Postgres) se muestran como `<tipo>` en vez de convertirse
 - **Git**: solo push/pull/fetch por SSH (HTTPS se dejó fuera a propósito — requeriría una compilación vendorizada de OpenSSL que necesita Perl)
 - **GeoIP** en el módulo de Red: requiere una license key gratuita de MaxMind que cada usuario debe conseguir por su cuenta
 - **Autocompletado real (Tab) en la Terminal**: evaluado y descartado a propósito — PowerShell/cmd ya hacen su propio tab-completion nativo dentro del PTY

@@ -125,6 +125,24 @@ pub fn init_db() -> Result<Db, String> {
             remote_host     TEXT NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_conn_history_lookup ON sentinel_connection_history(process_name, remote_host, timestamp_unix);
+
+        -- Modulo Base de datos: metadatos de conexion guardados por el
+        -- usuario. Igual que ssh_profiles, la contrasena NUNCA se guarda
+        -- aca — se pide de nuevo cada vez que se conecta. Para sqlite,
+        -- file_path es la ruta al archivo .db; para postgres/mysql, host/
+        -- port/username/database_name se usan y file_path queda NULL.
+        CREATE TABLE IF NOT EXISTS db_connections (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            label           TEXT NOT NULL,
+            engine          TEXT NOT NULL,
+            host            TEXT,
+            port            INTEGER,
+            username        TEXT,
+            database_name   TEXT,
+            file_path       TEXT,
+            use_tls         INTEGER NOT NULL DEFAULT 0,
+            created_at_unix INTEGER NOT NULL
+        );
         ",
     )
     .map_err(|e| format!("No se pudo preparar el esquema de la base de datos: {e}"))?;

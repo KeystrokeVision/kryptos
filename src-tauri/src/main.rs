@@ -25,6 +25,7 @@ fn main() {
         .manage(commands::chat::ChatManager::default())
         .manage(commands::sentinel::SentinelManager::default())
         .manage(commands::honeytoken::HoneytokenManager::default())
+        .manage(commands::database::DatabaseManager::default())
         .manage(database)
         .invoke_handler(tauri::generate_handler![
             commands::system::get_system_snapshot,
@@ -182,6 +183,15 @@ fn main() {
             commands::dossier::investigate_process,
             commands::sentinel::sentinel_time_bounds,
             commands::sentinel::sentinel_state_at,
+            commands::database::list_db_connections,
+            commands::database::add_db_connection,
+            commands::database::delete_db_connection,
+            commands::database::db_test_connection,
+            commands::database::db_connect,
+            commands::database::db_disconnect,
+            commands::database::db_list_tables,
+            commands::database::db_list_columns,
+            commands::database::db_run_query,
         ])
         .run(tauri::generate_context!())
         .expect("error al ejecutar la aplicacion KRYPTOS");

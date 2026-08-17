@@ -21,6 +21,7 @@ pub mod disk_usage;
 pub mod audit;
 pub mod baseline;
 pub mod chat;
+pub mod database;
 pub mod docker;
 pub mod dossier;
 pub mod elevation;
