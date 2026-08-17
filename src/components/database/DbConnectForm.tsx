@@ -4,6 +4,7 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { Plug, Save, Trash2, FolderOpen, Database, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import { api } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { DbConnectionProfile, DbConnectParams, DbEngine } from "@/types/database";
 
 interface DbConnectFormProps {
@@ -26,6 +27,7 @@ export function DbConnectForm({ onConnect }: DbConnectFormProps) {
   const [useTls, setUseTls] = useState(false);
   const [saveProfile, setSaveProfile] = useState(true);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<DbConnectionProfile | null>(null);
 
   const profiles = useQuery({ queryKey: ["db", "profiles"], queryFn: api.listDbConnections });
 
@@ -124,7 +126,7 @@ export function DbConnectForm({ onConnect }: DbConnectFormProps) {
               </p>
             </button>
             <button
-              onClick={() => deleteMutation.mutate(p.id)}
+              onClick={() => setPendingDelete(p)}
               className="shrink-0 text-text-dim opacity-0 hover:text-accent-bright group-hover:opacity-100"
               aria-label={`Eliminar conexion ${p.label}`}
             >
@@ -259,6 +261,19 @@ export function DbConnectForm({ onConnect }: DbConnectFormProps) {
           </button>
         </div>
       </form>
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title="Eliminar conexion guardada"
+          message={`Vas a eliminar el perfil "${pendingDelete.label}" (${ENGINE_LABELS[pendingDelete.engine]}). Esta accion no se puede deshacer.`}
+          confirmLabel="Eliminar"
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={() => {
+            deleteMutation.mutate(pendingDelete.id);
+            setPendingDelete(null);
+          }}
+        />
+      )}
     </div>
   );
 }

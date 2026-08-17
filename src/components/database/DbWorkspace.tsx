@@ -17,6 +17,34 @@ interface DbWorkspaceProps {
 
 const DESTRUCTIVE_RE = /^\s*(insert|update|delete|drop|alter|truncate|create|replace|grant|revoke)\b/i;
 
+/**
+ * Saca comentarios y espacios en blanco del principio de la consulta antes
+ * de buscar un verbo destructivo. Sin esto, DESTRUCTIVE_RE (que solo salta
+ * \s*) nunca matchea cuando el texto empieza con un comentario SQL — y el
+ * editor deja puesto por defecto justamente un comentario de ayuda, asi que
+ * un DELETE/DROP escrito debajo del placeholder corria sin pedir
+ * confirmacion. Hallazgo real de la auditoria de QA de este modulo (TC09).
+ */
+function stripLeadingSqlNoise(sql: string): string {
+  let s = sql;
+  for (let i = 0; i < 50; i++) {
+    const withoutSpace = s.replace(/^\s+/, "");
+    if (withoutSpace.startsWith("--")) {
+      const nl = withoutSpace.indexOf("\n");
+      s = nl === -1 ? "" : withoutSpace.slice(nl + 1);
+      continue;
+    }
+    if (withoutSpace.startsWith("/*")) {
+      const end = withoutSpace.indexOf("*/");
+      s = end === -1 ? "" : withoutSpace.slice(end + 2);
+      continue;
+    }
+    s = withoutSpace;
+    break;
+  }
+  return s;
+}
+
 function quoteTableForSelect(table: string) {
   // Alcanza con comillas dobles estándar SQL (Postgres/SQLite las
   // aceptan tal cual; MySQL las acepta si ANSI_QUOTES no cambia el modo
@@ -88,7 +116,7 @@ export function DbWorkspace({ sessionId, params, label }: DbWorkspaceProps) {
   function executeSql(query: string) {
     const trimmed = query.trim();
     if (!trimmed || runMutation.isPending) return;
-    if (DESTRUCTIVE_RE.test(trimmed)) {
+    if (DESTRUCTIVE_RE.test(stripLeadingSqlNoise(trimmed))) {
       setPendingSql(trimmed);
       return;
     }
