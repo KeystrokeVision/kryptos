@@ -158,6 +158,8 @@ fn main() {
             commands::chat::chat_disconnect,
             commands::chat::chat_is_active,
             commands::chat::chat_broadcast_status,
+            commands::chat::fleet_request_action,
+            commands::chat::fleet_send_action_result,
             commands::baseline::run_security_baseline,
             commands::window::close_splashscreen,
             commands::panic::panic_lock_session,

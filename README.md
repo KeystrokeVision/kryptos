@@ -78,7 +78,7 @@ datos **SQLite** local para auditoría e historial · **cero telemetría**.
 | **Red** | Tráfico en tiempo real, conexiones activas con PID, gateway/DNS, tabla ARP de la LAN, diagnóstico de ping estilo `mtr` |
 | **SSH** | Terminal remota interactiva real + transferencia de archivos SFTP, con verificación de huella del host (TOFU) |
 | **Chat** | Mensajería peer-to-peer entre instancias de KRYPTOS en la misma red local (hospedar o unirse por IP:puerto), sin servidor intermedio — y dobla como canal de **Modo Flota** |
-| **Centro de Operaciones** | Todo lo que Sentinel sabe del equipo en una pantalla: puntaje de seguridad, mapa de red en vivo, pulso de alertas/eventos, y **Flota** con el resumen de otras instancias conectadas por Chat |
+| **Centro de Operaciones** | Todo lo que Sentinel sabe del equipo en una pantalla: puntaje de seguridad, mapa de red en vivo, pulso de alertas/eventos, y **Flota** con el resumen de otras instancias conectadas por Chat — con acción remota real (aislar la red de otro equipo de la flota, con confirmación explícita del lado que la recibe, nunca automática) |
 | **Seguridad** | 17 herramientas — [ver detalle](#seguridad-17-herramientas-en-un-módulo) |
 | **Modo Hacker** | 12 herramientas — [ver detalle](#modo-hacker-osint-pasivo-cripto-y-estética-de-terminal--todo-legal) |
 
@@ -238,7 +238,7 @@ kryptos/
 - **GeoIP** en el módulo de Red: requiere una license key gratuita de MaxMind que cada usuario debe conseguir por su cuenta
 - **Autocompletado real (Tab) en la Terminal**: evaluado y descartado a propósito — PowerShell/cmd ya hacen su propio tab-completion nativo dentro del PTY
 - Internacionalización (hoy todo está en español) y un tema claro real
-- **Modo Flota** comparte el estado de Sentinel entre instancias, pero no hay forma todavía de actuar a distancia — es solo lectura por ahora
+- **Modo Flota**: además de compartir el estado de Sentinel, ahora puede pedirle a otra instancia conectada que aísle su propia red (con confirmación explícita del lado que la recibe). Es la primera acción remota — matar un proceso puntual o correr un script en otra instancia queda pendiente, entre otras cosas porque necesitan que quien pide la acción primero vea el estado del equipo destino (lista de procesos, etc.), no solo su nombre
 
 ## Licencia
 

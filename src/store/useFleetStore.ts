@@ -19,6 +19,12 @@ interface FleetState {
   members: Record<string, FleetMemberStatus>;
   upsert: (status: FleetMemberStatus) => void;
   prune: (olderThanUnix: number) => void;
+  // El nick con el que ESTE equipo esta host/unido al chat ahora mismo, o
+  // null si no hay sesion activa. FleetActionListener lo usa para saber si
+  // un fleet_request_action que llego es para mi; el Centro de Operaciones
+  // lo usa para no ofrecer "aislar red remota" contra uno mismo.
+  myNick: string | null;
+  setMyNick: (nick: string | null) => void;
 }
 
 /**
@@ -29,6 +35,8 @@ interface FleetState {
  */
 export const useFleetStore = create<FleetState>((set) => ({
   members: {},
+  myNick: null,
+  setMyNick: (nick) => set({ myNick: nick }),
   upsert: (status) =>
     set((state) => ({
       members: { ...state.members, [status.nick]: status },

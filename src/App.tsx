@@ -13,6 +13,7 @@ import { CommandPalette } from "@/components/layout/CommandPalette";
 import { SentinelWatcher } from "@/components/layout/SentinelWatcher";
 import { FleetWatcher } from "@/components/layout/FleetWatcher";
 import { BreachOverlay } from "@/components/layout/BreachOverlay";
+import { FleetActionListener } from "@/components/layout/FleetActionListener";
 import { useTabStore } from "@/store/useTabStore";
 
 export default function App() {
@@ -75,6 +76,7 @@ export default function App() {
       <CommandPalette />
       <SentinelWatcher />
       <FleetWatcher />
+      <FleetActionListener />
       <BreachOverlay />
     </div>
   );

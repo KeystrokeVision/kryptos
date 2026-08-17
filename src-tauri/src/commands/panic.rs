@@ -68,7 +68,11 @@ fn set_network_impl(enable: bool) -> Result<(), String> {
 /// Disables (or, with `enable: true`, re-enables) every network adapter on
 /// this machine — the standard first move in incident response: cut the
 /// machine off the network before doing anything else. Only ever acts on
-/// this local machine's own adapters. Requires administrator/root
+/// this local machine's own adapters — this command itself has no notion of
+/// "remote". It can also be reached indirectly via Modo Flota
+/// (fleet_request_action in commands/chat.rs), but that path always shows
+/// an explicit confirmation on THIS machine before ever calling here; no
+/// caller, local or remote, skips that gate. Requires administrator/root
 /// privileges.
 #[tauri::command]
 pub fn panic_set_network(enable: bool, db: State<'_, Db>) -> Result<(), String> {

@@ -181,6 +181,84 @@ pub async fn chat_broadcast_status(manager: State<'_, ChatManager>, status_json:
     }
 }
 
+/// Pide a otra instancia de KRYPTOS conectada al mismo chat que ejecute una
+/// accion sobre SU PROPIO equipo — "Modo Flota" real, no solo lectura. Va
+/// por el mismo canal P2P que el chat y el estado de Sentinel, dirigido a
+/// un `target_nick` puntual: cada instancia que reciba esto y no sea el
+/// destinatario simplemente lo ignora (ver FleetActionListener.tsx). La
+/// instancia destino NUNCA ejecuta nada sola — siempre le muestra al usuario
+/// una confirmacion explicita antes de correr la accion pedida, el mismo
+/// criterio que cualquier otra accion destructiva de KRYPTOS.
+#[derive(Serialize, Deserialize)]
+struct FleetActionRequest {
+    #[serde(rename = "targetNick")]
+    target_nick: String,
+    action: String,
+    #[serde(rename = "requestId")]
+    request_id: String,
+}
+
+#[tauri::command]
+pub async fn fleet_request_action(manager: State<'_, ChatManager>, target_nick: String, action: String, request_id: String) -> Result<(), String> {
+    let mut guard = manager.0.lock().await;
+    let nick = match guard.as_ref() {
+        Some(ChatConnection::Host { nick, .. }) | Some(ChatConnection::Client { nick, .. }) => nick.clone(),
+        None => return Err("No estas conectado a ningun chat.".into()),
+    };
+    let payload = FleetActionRequest { target_nick, action, request_id };
+    let text = serde_json::to_string(&payload).map_err(|e| format!("No se pudo preparar el pedido: {e}"))?;
+    let msg = ChatMessage { nick, text, timestamp_unix: now_unix(), kind: "action_request".to_string() };
+    let line = serde_json::to_string(&msg).map_err(|e| format!("No se pudo preparar el pedido: {e}"))?;
+
+    match guard.as_mut() {
+        Some(ChatConnection::Host { broadcast_tx, .. }) => {
+            let _ = broadcast_tx.send(line);
+            Ok(())
+        }
+        Some(ChatConnection::Client { writer, .. }) => {
+            writer.write_all(format!("{line}\n").as_bytes()).await.map_err(|e| format!("No se pudo enviar: {e}"))
+        }
+        None => Err("No estas conectado a ningun chat.".into()),
+    }
+}
+
+/// Responde un `fleet_request_action` — aprobado/rechazado, y con el
+/// resultado real de haberlo corrido (o el motivo por el que no se corrio).
+/// Va dirigido de vuelta al `requester_nick` que lo pidio originalmente.
+#[derive(Serialize, Deserialize)]
+struct FleetActionResult {
+    #[serde(rename = "requestId")]
+    request_id: String,
+    #[serde(rename = "requesterNick")]
+    requester_nick: String,
+    ok: bool,
+    message: String,
+}
+
+#[tauri::command]
+pub async fn fleet_send_action_result(manager: State<'_, ChatManager>, request_id: String, requester_nick: String, ok: bool, message: String) -> Result<(), String> {
+    let mut guard = manager.0.lock().await;
+    let nick = match guard.as_ref() {
+        Some(ChatConnection::Host { nick, .. }) | Some(ChatConnection::Client { nick, .. }) => nick.clone(),
+        None => return Err("No estas conectado a ningun chat.".into()),
+    };
+    let payload = FleetActionResult { request_id, requester_nick, ok, message };
+    let text = serde_json::to_string(&payload).map_err(|e| format!("No se pudo preparar la respuesta: {e}"))?;
+    let msg = ChatMessage { nick, text, timestamp_unix: now_unix(), kind: "action_result".to_string() };
+    let line = serde_json::to_string(&msg).map_err(|e| format!("No se pudo preparar la respuesta: {e}"))?;
+
+    match guard.as_mut() {
+        Some(ChatConnection::Host { broadcast_tx, .. }) => {
+            let _ = broadcast_tx.send(line);
+            Ok(())
+        }
+        Some(ChatConnection::Client { writer, .. }) => {
+            writer.write_all(format!("{line}\n").as_bytes()).await.map_err(|e| format!("No se pudo enviar: {e}"))
+        }
+        None => Err("No estas conectado a ningun chat.".into()),
+    }
+}
+
 /// Stops hosting, or disconnects from a remote chat.
 #[tauri::command]
 pub async fn chat_disconnect(manager: State<'_, ChatManager>) -> Result<(), String> {

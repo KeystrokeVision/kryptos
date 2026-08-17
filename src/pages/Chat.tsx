@@ -3,6 +3,7 @@ import { listen } from "@tauri-apps/api/event";
 import { MessageSquare, Server, LogIn, LogOut, Send, AlertTriangle, Users } from "lucide-react";
 import { api } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
+import { useFleetStore } from "@/store/useFleetStore";
 import type { ChatMessage } from "@/types/chat";
 
 type ConnectionState = "disconnected" | "connecting" | "hosting" | "connected";
@@ -42,16 +43,19 @@ export default function Chat() {
   useEffect(() => {
     return () => {
       api.chatDisconnect().catch(() => {});
+      useFleetStore.getState().setMyNick(null);
     };
   }, []);
 
   async function handleHost() {
     setError(null);
     setState("connecting");
+    const cleanNick = nick.trim() || "usuario";
     try {
-      await api.chatStartServer(Number(port) || 6667, nick.trim() || "usuario");
+      await api.chatStartServer(Number(port) || 6667, cleanNick);
       setState("hosting");
       setMessages([]);
+      useFleetStore.getState().setMyNick(cleanNick);
     } catch (e) {
       setError(String((e as Error)?.message ?? e));
       setState("disconnected");
@@ -62,10 +66,12 @@ export default function Chat() {
     if (!remoteHost.trim()) return;
     setError(null);
     setState("connecting");
+    const cleanNick = nick.trim() || "usuario";
     try {
-      await api.chatConnect(remoteHost.trim(), Number(port) || 6667, nick.trim() || "usuario");
+      await api.chatConnect(remoteHost.trim(), Number(port) || 6667, cleanNick);
       setState("connected");
       setMessages([]);
+      useFleetStore.getState().setMyNick(cleanNick);
     } catch (e) {
       setError(String((e as Error)?.message ?? e));
       setState("disconnected");
@@ -75,6 +81,7 @@ export default function Chat() {
   async function handleDisconnect() {
     await api.chatDisconnect().catch(() => {});
     setState("disconnected");
+    useFleetStore.getState().setMyNick(null);
   }
 
   async function sendMessage() {

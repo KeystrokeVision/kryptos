@@ -126,6 +126,9 @@ export const api = {
   chatDisconnect: () => invoke<void>("chat_disconnect"),
   chatIsActive: () => invoke<boolean>("chat_is_active"),
   chatBroadcastStatus: (statusJson: string) => invoke<void>("chat_broadcast_status", { statusJson }),
+  fleetRequestAction: (targetNick: string, action: string, requestId: string) => invoke<void>("fleet_request_action", { targetNick, action, requestId }),
+  fleetSendActionResult: (requestId: string, requesterNick: string, ok: boolean, message: string) =>
+    invoke<void>("fleet_send_action_result", { requestId, requesterNick, ok, message }),
   // Sentinel (vigilancia continua) — ver src-tauri/src/commands/sentinel.rs.
   // Los hallazgos llegan tambien en vivo por los eventos "sentinel://event",
   // "sentinel://alert" y "sentinel://tick".
