@@ -82,13 +82,13 @@ export default function Apps() {
           <div className="ml-3 flex gap-1">
             <button
               onClick={() => setView("launcher")}
-              className={cn("flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11px]", view === "launcher" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}
+              className={cn("flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11px]", view === "launcher" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}
             >
               <LayoutGrid size={12} /> Lanzador
             </button>
             <button
               onClick={() => setView("store")}
-              className={cn("flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11px]", view === "store" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}
+              className={cn("flex h-7 items-center gap-1.5 rounded-md px-2.5 text-[11px]", view === "store" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}
             >
               <Store size={12} /> Tienda
             </button>
@@ -98,7 +98,7 @@ export default function Apps() {
           <div className="flex gap-2">
             <button
               onClick={() => setModal({ mode: "browse" })}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]"
+              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]"
             >
               <Search size={13} />
               Explorar instaladas

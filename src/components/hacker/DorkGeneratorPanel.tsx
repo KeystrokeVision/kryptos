@@ -78,7 +78,7 @@ export function DorkGeneratorPanel() {
                   onClick={() => toggleRecipe(r.id)}
                   className={cn(
                     "rounded-full px-2.5 py-1 text-[11px]",
-                    activeRecipes.has(r.id) ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]"
+                    activeRecipes.has(r.id) ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]"
                   )}
                 >
                   {r.label}

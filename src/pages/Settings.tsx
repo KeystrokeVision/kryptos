@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { isEnabled as isAutostartEnabled, enable as enableAutostart, disable as disableAutostart } from "@tauri-apps/plugin-autostart";
 import { isPermissionGranted, requestPermission } from "@tauri-apps/plugin-notification";
-import { Settings as SettingsIcon, FolderOpen, TerminalSquare, Info, Check, Power, BellRing, Radar, Palette } from "lucide-react";
+import { Settings as SettingsIcon, FolderOpen, TerminalSquare, Info, Check, Power, BellRing, Radar, Palette, Sun, Moon } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { api } from "@/lib/tauri";
 import { TERMINAL_THEMES, DEFAULT_TERMINAL_THEME_ID } from "@/lib/terminalThemes";
+import { applyTheme, getCachedTheme, THEME_SETTING_KEY, type AppTheme } from "@/lib/theme";
 
 const DEFAULT_SHELL_KEY = "terminal.default_shell";
 const TERMINAL_THEME_KEY = "terminal.theme";
@@ -17,6 +18,27 @@ export default function Settings() {
   const [autostart, setAutostart] = useState<boolean | null>(null);
   const [notifPermission, setNotifPermission] = useState<"granted" | "denied" | "default" | null>(null);
   const [sentinelAutostart, setSentinelAutostart] = useState<boolean | null>(null);
+  const [appTheme, setAppTheme] = useState<AppTheme>(getCachedTheme());
+
+  useEffect(() => {
+    api
+      .getSetting(THEME_SETTING_KEY)
+      .then((v) => {
+        if (v === "light" || v === "dark") setAppTheme(v);
+      })
+      .catch(() => {});
+  }, []);
+
+  async function chooseTheme(next: AppTheme) {
+    setAppTheme(next);
+    applyTheme(next);
+    try {
+      await api.setSetting(THEME_SETTING_KEY, next);
+    } catch {
+      // el tema ya se aplico visualmente; si esto falla, el proximo
+      // arranque cae de nuevo al ultimo valor que si se guardo bien.
+    }
+  }
 
   useEffect(() => {
     isAutostartEnabled().then(setAutostart).catch(() => setAutostart(false));
@@ -105,6 +127,37 @@ export default function Settings() {
         <h2 className="text-sm font-medium text-text">Configuracion</h2>
       </div>
 
+      <Card title="Apariencia">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs text-text-dim">
+            <Palette size={13} />
+            Tema de la aplicacion
+          </div>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => chooseTheme("dark")}
+              className={`flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md border text-xs ${
+                appTheme === "dark" ? "border-accent bg-accent/10 text-text" : "border-border text-text-muted hover:bg-overlay/[0.04]"
+              }`}
+            >
+              <Moon size={13} /> Oscuro
+            </button>
+            <button
+              onClick={() => chooseTheme("light")}
+              className={`flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md border text-xs ${
+                appTheme === "light" ? "border-accent bg-accent/10 text-text" : "border-border text-text-muted hover:bg-overlay/[0.04]"
+              }`}
+            >
+              <Sun size={13} /> Claro
+            </button>
+          </div>
+          <p className="text-[10px] text-text-dim">
+            Oscuro es el tema original de KRYPTOS. La Terminal y el Modo Hacker mantienen su propia estetica siempre
+            oscura, independiente de esto.
+          </p>
+        </div>
+      </Card>
+
       <Card title="Datos locales">
         <div className="space-y-2 text-xs">
           <p className="text-text-dim">
@@ -119,7 +172,7 @@ export default function Settings() {
             <button
               onClick={() => dataDir && api.openInFileManager(dataDir)}
               disabled={!dataDir}
-              className="h-7 shrink-0 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-white/[0.04] disabled:opacity-40"
+              className="h-7 shrink-0 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
             >
               Abrir carpeta
             </button>
@@ -166,7 +219,7 @@ export default function Settings() {
                 key={t.id}
                 onClick={() => setSelectedTheme(t.id)}
                 className={`flex items-center gap-1.5 rounded-md border px-2 py-1.5 text-[11px] ${
-                  selectedTheme === t.id ? "border-accent bg-accent/10 text-text" : "border-border text-text-muted hover:bg-white/[0.04]"
+                  selectedTheme === t.id ? "border-accent bg-accent/10 text-text" : "border-border text-text-muted hover:bg-overlay/[0.04]"
                 }`}
               >
                 <span className="flex gap-0.5">
@@ -199,7 +252,7 @@ export default function Settings() {
             <button
               onClick={toggleAutostart}
               disabled={autostart === null}
-              className={`h-6 w-11 shrink-0 rounded-full transition-colors ${autostart ? "bg-accent" : "bg-white/10"} disabled:opacity-40`}
+              className={`h-6 w-11 shrink-0 rounded-full transition-colors ${autostart ? "bg-accent" : "bg-overlay/10"} disabled:opacity-40`}
               aria-label="Alternar inicio automatico"
             >
               <span className={`block h-5 w-5 rounded-full bg-white transition-transform ${autostart ? "translate-x-5" : "translate-x-0.5"}`} />
@@ -224,7 +277,7 @@ export default function Settings() {
                 <Check size={11} /> Permitidas
               </span>
             ) : (
-              <button onClick={askNotificationPermission} className="h-7 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-white/[0.04]">
+              <button onClick={askNotificationPermission} className="h-7 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-overlay/[0.04]">
                 Permitir
               </button>
             )}
@@ -238,7 +291,7 @@ export default function Settings() {
             <button
               onClick={toggleSentinelAutostart}
               disabled={sentinelAutostart === null}
-              className={`h-6 w-11 shrink-0 rounded-full transition-colors ${sentinelAutostart ? "bg-accent" : "bg-white/10"} disabled:opacity-40`}
+              className={`h-6 w-11 shrink-0 rounded-full transition-colors ${sentinelAutostart ? "bg-accent" : "bg-overlay/10"} disabled:opacity-40`}
               aria-label="Alternar inicio automatico de Sentinel"
             >
               <span className={`block h-5 w-5 rounded-full bg-white transition-transform ${sentinelAutostart ? "translate-x-5" : "translate-x-0.5"}`} />

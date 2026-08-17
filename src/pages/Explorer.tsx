@@ -227,7 +227,7 @@ export default function Explorer() {
             disabled={!up}
             {...(up ? crumbDropHandlers(up) : {})}
             className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text disabled:opacity-30",
+              "flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text disabled:opacity-30",
               crumbDragOver === up && "bg-accent/25 text-text outline outline-1 outline-accent-bright"
             )}
             aria-label="Subir un nivel"
@@ -236,7 +236,7 @@ export default function Explorer() {
           </button>
           <button
             onClick={refreshListing}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
             aria-label="Actualizar"
           >
             <RefreshCw size={13} className={listQuery.isFetching ? "animate-spin" : ""} />
@@ -249,13 +249,13 @@ export default function Explorer() {
               <span className="text-text">{selected.size} seleccionado(s)</span>
               <button
                 onClick={() => setClipboard({ paths: [...selected], mode: "copy" })}
-                className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-text-muted hover:bg-white/[0.04]"
+                className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-text-muted hover:bg-overlay/[0.04]"
               >
                 <Copy size={11} /> Copiar
               </button>
               <button
                 onClick={() => setClipboard({ paths: [...selected], mode: "cut" })}
-                className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-text-muted hover:bg-white/[0.04]"
+                className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-text-muted hover:bg-overlay/[0.04]"
               >
                 <Scissors size={11} /> Cortar
               </button>
@@ -278,7 +278,7 @@ export default function Explorer() {
                     onClick={() => navigate(crumb.path)}
                     {...crumbDropHandlers(crumb.path)}
                     className={cn(
-                      "rounded px-1.5 py-0.5 hover:bg-white/[0.06]",
+                      "rounded px-1.5 py-0.5 hover:bg-overlay/[0.06]",
                       i === breadcrumbs.length - 1 ? "text-text" : "text-text-muted",
                       crumbDragOver === crumb.path && "bg-accent/25 text-text outline outline-1 outline-accent-bright"
                     )}
@@ -292,13 +292,13 @@ export default function Explorer() {
 
           <button
             onClick={() => setModal({ mode: "newFolder" })}
-            className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text"
           >
             <FolderPlus size={13} /> Carpeta
           </button>
           <button
             onClick={() => setModal({ mode: "newFile" })}
-            className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text"
           >
             <FilePlus size={13} /> Archivo
           </button>
@@ -314,14 +314,14 @@ export default function Explorer() {
           )}
           <button
             onClick={() => addFavoriteMutation.mutate()}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-accent-bright"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-accent-bright"
             aria-label="Agregar a favoritos"
           >
             <Star size={13} />
           </button>
           <button
             onClick={() => setSearchOpen((v) => !v)}
-            className={cn("flex h-7 w-7 items-center justify-center rounded-md hover:bg-white/[0.06]", searchOpen ? "text-accent-bright" : "text-text-dim hover:text-text")}
+            className={cn("flex h-7 w-7 items-center justify-center rounded-md hover:bg-overlay/[0.06]", searchOpen ? "text-accent-bright" : "text-text-dim hover:text-text")}
             aria-label="Buscar"
           >
             <Search size={13} />
@@ -329,7 +329,7 @@ export default function Explorer() {
           <div className="mx-1 h-4 w-px bg-border" />
           <button
             onClick={() => setShowDiskUsage((v) => !v)}
-            className={cn("flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] hover:bg-white/[0.06]", showDiskUsage ? "text-accent-bright" : "text-text-dim hover:text-text")}
+            className={cn("flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] hover:bg-overlay/[0.06]", showDiskUsage ? "text-accent-bright" : "text-text-dim hover:text-text")}
             aria-label="Ver uso de disco"
           >
             <HardDrive size={13} /> Tamaños
@@ -337,7 +337,7 @@ export default function Explorer() {
           <button
             onClick={() => setShowDuplicateFinder(true)}
             disabled={!currentPath}
-            className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text disabled:opacity-40"
+            className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text disabled:opacity-40"
             aria-label="Buscar duplicados"
           >
             <Copy size={13} /> Duplicados

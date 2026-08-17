@@ -164,7 +164,7 @@ export function LabPanel() {
                     </a>
                     <button
                       onClick={() => stop(item)}
-                      className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]"
+                      className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]"
                     >
                       <Square size={12} /> Detener y eliminar
                     </button>
@@ -174,7 +174,7 @@ export function LabPanel() {
                 {state.status === "error" && (
                   <div className="space-y-2">
                     <p className={cn("rounded-md border border-accent/40 bg-accent/10 px-2.5 py-1.5 text-[11px] text-accent-bright")}>{state.message}</p>
-                    <button onClick={() => launch(item)} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]">
+                    <button onClick={() => launch(item)} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]">
                       Reintentar
                     </button>
                   </div>

@@ -50,7 +50,7 @@ export default function Ssh() {
           onClick={() => setActiveId(null)}
           className={cn(
             "flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2 text-[11px]",
-            activeId === null ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-white/[0.03]"
+            activeId === null ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-overlay/[0.03]"
           )}
         >
           <Plus size={12} /> Nueva conexion
@@ -63,7 +63,7 @@ export default function Ssh() {
               onClick={() => setActiveId(s.id)}
               className={cn(
                 "group flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 text-[11px]",
-                s.id === activeId ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-white/[0.03]"
+                s.id === activeId ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-overlay/[0.03]"
               )}
             >
               <ServerCog size={11} className={s.id === activeId ? "text-accent-bright" : "text-text-dim"} />
@@ -73,7 +73,7 @@ export default function Ssh() {
                   e.stopPropagation();
                   closeTab(s.id);
                 }}
-                className="rounded p-0.5 text-text-dim opacity-0 hover:bg-white/10 hover:text-text group-hover:opacity-100"
+                className="rounded p-0.5 text-text-dim opacity-0 hover:bg-overlay/10 hover:text-text group-hover:opacity-100"
               >
                 <X size={10} />
               </button>
@@ -85,13 +85,13 @@ export default function Ssh() {
           <div className="flex gap-1">
             <button
               onClick={() => setMode(activeSession.id, "shell")}
-              className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", activeSession.mode === "shell" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}
+              className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", activeSession.mode === "shell" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}
             >
               <TerminalSquare size={12} /> Shell
             </button>
             <button
               onClick={() => setMode(activeSession.id, "sftp")}
-              className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", activeSession.mode === "sftp" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}
+              className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", activeSession.mode === "sftp" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}
             >
               <FolderOpen size={12} /> SFTP
             </button>

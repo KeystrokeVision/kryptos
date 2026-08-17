@@ -39,7 +39,7 @@ export default function UsersPage() {
               className="h-full w-40 bg-transparent text-[11px] text-text outline-none placeholder:text-text-dim"
             />
           </div>
-          <button onClick={() => refetch()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Actualizar">
+          <button onClick={() => refetch()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Actualizar">
             <RefreshCw size={13} className={isFetching ? "animate-spin" : ""} />
           </button>
         </div>
@@ -73,7 +73,7 @@ export default function UsersPage() {
             </thead>
             <tbody>
               {filtered.map((u) => (
-                <tr key={u.username} className="border-t border-borderMuted hover:bg-white/[0.03]">
+                <tr key={u.username} className="border-t border-borderMuted hover:bg-overlay/[0.03]">
                   <td className="px-3 py-1.5">
                     <span className="text-text">{u.username}</span>
                     {u.is_system && <span className="ml-1.5 rounded-full border border-borderMuted px-1.5 py-0.5 text-[9px] text-text-dim">sistema</span>}

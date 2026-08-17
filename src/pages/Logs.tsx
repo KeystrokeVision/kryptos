@@ -71,7 +71,7 @@ export default function Logs() {
               onClick={() => run(s.id, level)}
               className={cn(
                 "rounded-md border px-2 py-1 text-[11px]",
-                source === s.id ? "border-accent/60 bg-accent/10 text-text" : "border-border text-text-muted hover:bg-white/[0.03]"
+                source === s.id ? "border-accent/60 bg-accent/10 text-text" : "border-border text-text-muted hover:bg-overlay/[0.03]"
               )}
             >
               {s.label}
@@ -98,11 +98,11 @@ export default function Logs() {
           <button
             onClick={exportCsv}
             disabled={filtered.length === 0}
-            className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-white/[0.04] disabled:opacity-40"
+            className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
           >
             <Download size={11} /> Exportar CSV
           </button>
-          <button onClick={() => run(source, level)} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Actualizar">
+          <button onClick={() => run(source, level)} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Actualizar">
             <RefreshCw size={13} className={mutation.isPending ? "animate-spin" : ""} />
           </button>
         </div>

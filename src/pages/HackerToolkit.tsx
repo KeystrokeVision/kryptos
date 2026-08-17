@@ -56,7 +56,7 @@ export default function HackerToolkit() {
               onClick={() => setActiveId(tool.id)}
               className={cn(
                 "flex items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors",
-                isActive ? "border-r-2 border-accent-bright bg-white/[0.04] text-text" : "text-text-muted hover:bg-white/[0.03]"
+                isActive ? "border-r-2 border-accent-bright bg-overlay/[0.04] text-text" : "text-text-muted hover:bg-overlay/[0.03]"
               )}
             >
               <Icon size={14} className={isActive ? "text-accent-bright" : "text-text-dim"} />

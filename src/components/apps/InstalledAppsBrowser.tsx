@@ -52,7 +52,7 @@ export function InstalledAppsBrowser({ onClose, onPick }: InstalledAppsBrowserPr
               <button
                 key={app.exec_path}
                 onClick={() => onPick(app)}
-                className="flex w-full items-center gap-2.5 rounded-md border border-border bg-base px-3 py-2 text-left text-xs hover:border-accent/50 hover:bg-white/[0.03]"
+                className="flex w-full items-center gap-2.5 rounded-md border border-border bg-base px-3 py-2 text-left text-xs hover:border-accent/50 hover:bg-overlay/[0.03]"
               >
                 <AppWindow size={14} className="shrink-0 text-accent-bright" />
                 <div className="min-w-0 flex-1">

@@ -167,7 +167,7 @@ export default function Terminal() {
                 }}
                 className={cn(
                   "group flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 text-[11px] transition-colors",
-                  isActive ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-white/[0.03]"
+                  isActive ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-overlay/[0.03]"
                 )}
               >
                 <TerminalSquare size={11} className={isActive ? "text-accent-bright" : "text-text-dim"} />
@@ -180,7 +180,7 @@ export default function Terminal() {
                       e.stopPropagation();
                       closeTab(tab.id);
                     }}
-                    className="rounded p-0.5 text-text-dim opacity-0 hover:bg-white/10 hover:text-text group-hover:opacity-100"
+                    className="rounded p-0.5 text-text-dim opacity-0 hover:bg-overlay/10 hover:text-text group-hover:opacity-100"
                   >
                     <X size={10} />
                   </button>
@@ -193,7 +193,7 @@ export default function Terminal() {
         <div className="relative flex items-center gap-0.5">
           <button
             onClick={() => setPickerOpen((v) => !v)}
-            className="flex h-7 items-center gap-1 rounded-md px-1.5 text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 items-center gap-1 rounded-md px-1.5 text-text-dim hover:bg-overlay/[0.06] hover:text-text"
             aria-label="Nueva terminal"
           >
             <Plus size={13} />
@@ -205,7 +205,7 @@ export default function Terminal() {
                 <button
                   key={s.id || "default"}
                   onClick={() => openTab(s.id ? s : undefined)}
-                  className="flex w-full items-center px-3 py-2 text-left text-[11px] text-text-muted hover:bg-white/[0.05] hover:text-text"
+                  className="flex w-full items-center px-3 py-2 text-left text-[11px] text-text-muted hover:bg-overlay/[0.05] hover:text-text"
                 >
                   {s.label}
                 </button>
@@ -216,7 +216,7 @@ export default function Terminal() {
           <button
             onClick={splitActiveTab}
             disabled={!activeTab || activeTab.panes.length >= 2}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text disabled:opacity-30"
             aria-label="Dividir panel"
           >
             <Columns2 size={13} />
@@ -227,7 +227,7 @@ export default function Terminal() {
           <div className="relative">
             <button
               onClick={() => setSnippetsOpen((v) => !v)}
-              className={cn("flex h-7 w-7 items-center justify-center rounded-md hover:bg-white/[0.06]", snippetsOpen ? "text-accent-bright" : "text-text-dim hover:text-text")}
+              className={cn("flex h-7 w-7 items-center justify-center rounded-md hover:bg-overlay/[0.06]", snippetsOpen ? "text-accent-bright" : "text-text-dim hover:text-text")}
               aria-label="Comandos rapidos"
             >
               <BookMarked size={13} />
@@ -253,7 +253,7 @@ export default function Terminal() {
                         activeHandle?.writeText(s.command);
                         setSnippetsOpen(false);
                       }}
-                      className="block w-full border-b border-borderMuted px-3 py-2 text-left last:border-b-0 hover:bg-white/[0.04]"
+                      className="block w-full border-b border-borderMuted px-3 py-2 text-left last:border-b-0 hover:bg-overlay/[0.04]"
                     >
                       <div className="flex items-center justify-between">
                         <p className="text-[11px] text-text">{s.label}</p>
@@ -268,10 +268,10 @@ export default function Terminal() {
             )}
           </div>
 
-          <button onClick={() => activeHandle?.copySelection()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Copiar seleccion">
+          <button onClick={() => activeHandle?.copySelection()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Copiar seleccion">
             <Copy size={13} />
           </button>
-          <button onClick={() => activeHandle?.pasteFromClipboard()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Pegar">
+          <button onClick={() => activeHandle?.pasteFromClipboard()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Pegar">
             <ClipboardPaste size={13} />
           </button>
 
@@ -279,18 +279,18 @@ export default function Terminal() {
 
           <button
             onClick={() => setSearchOpen((v) => !v)}
-            className={cn("flex h-7 w-7 items-center justify-center rounded-md hover:bg-white/[0.06]", searchOpen ? "text-accent-bright" : "text-text-dim hover:text-text")}
+            className={cn("flex h-7 w-7 items-center justify-center rounded-md hover:bg-overlay/[0.06]", searchOpen ? "text-accent-bright" : "text-text-dim hover:text-text")}
             aria-label="Buscar en la terminal"
           >
             <Search size={13} />
           </button>
-          <button onClick={() => activeHandle?.zoomOut()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Reducir tamano de fuente">
+          <button onClick={() => activeHandle?.zoomOut()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Reducir tamano de fuente">
             <ZoomOut size={13} />
           </button>
-          <button onClick={() => activeHandle?.zoomIn()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Aumentar tamano de fuente">
+          <button onClick={() => activeHandle?.zoomIn()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Aumentar tamano de fuente">
             <ZoomIn size={13} />
           </button>
-          <button onClick={() => activeHandle?.clear()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Limpiar terminal">
+          <button onClick={() => activeHandle?.clear()} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Limpiar terminal">
             <Eraser size={13} />
           </button>
         </div>
@@ -342,7 +342,7 @@ export default function Terminal() {
                       e.stopPropagation();
                       closePane(tab.id, pane.sessionId);
                     }}
-                    className="absolute right-2 top-1 z-20 rounded p-1 text-text-dim hover:bg-white/10 hover:text-text"
+                    className="absolute right-2 top-1 z-20 rounded p-1 text-text-dim hover:bg-overlay/10 hover:text-text"
                     aria-label="Cerrar panel"
                   >
                     <X size={11} />

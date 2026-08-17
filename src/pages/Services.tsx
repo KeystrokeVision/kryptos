@@ -82,7 +82,7 @@ export default function Services() {
           </div>
           <button
             onClick={() => refetch()}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
             aria-label="Actualizar"
           >
             <RefreshCw size={13} className={isFetching ? "animate-spin" : ""} />
@@ -113,7 +113,7 @@ export default function Services() {
             </thead>
             <tbody>
               {filtered.map((s) => (
-                <tr key={s.name} className="group border-t border-borderMuted hover:bg-white/[0.03]">
+                <tr key={s.name} className="group border-t border-borderMuted hover:bg-overlay/[0.03]">
                   <td className="max-w-0 px-3 py-1.5">
                     <p className="truncate text-text" title={s.display_name}>
                       {s.display_name}

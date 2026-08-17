@@ -269,13 +269,13 @@ export default function NetworkModule() {
             <div className="flex rounded-md border border-border p-0.5">
               <button
                 onClick={() => setConnView("tabla")}
-                className={cn("flex items-center gap-1 rounded px-2 py-0.5 text-[10px]", connView === "tabla" ? "bg-accent text-white" : "text-text-muted hover:bg-white/[0.04]")}
+                className={cn("flex items-center gap-1 rounded px-2 py-0.5 text-[10px]", connView === "tabla" ? "bg-accent text-white" : "text-text-muted hover:bg-overlay/[0.04]")}
               >
                 <TableProperties size={10} /> Tabla
               </button>
               <button
                 onClick={() => setConnView("mapa")}
-                className={cn("flex items-center gap-1 rounded px-2 py-0.5 text-[10px]", connView === "mapa" ? "bg-accent text-white" : "text-text-muted hover:bg-white/[0.04]")}
+                className={cn("flex items-center gap-1 rounded px-2 py-0.5 text-[10px]", connView === "mapa" ? "bg-accent text-white" : "text-text-muted hover:bg-overlay/[0.04]")}
               >
                 <Waypoints size={10} /> Mapa
               </button>
@@ -321,7 +321,7 @@ export default function NetworkModule() {
             </thead>
             <tbody>
               {filteredConnections.slice(0, 200).map((c: ConnectionInfo, i: number) => (
-                <tr key={`${c.protocol}-${c.local_addr}-${c.remote_addr}-${i}`} className="group border-t border-borderMuted hover:bg-white/[0.03]">
+                <tr key={`${c.protocol}-${c.local_addr}-${c.remote_addr}-${i}`} className="group border-t border-borderMuted hover:bg-overlay/[0.03]">
                   <td className="px-2 py-1 font-mono text-text-dim">{c.protocol}</td>
                   <td className="px-2 py-1 font-mono text-text">{c.local_addr}</td>
                   <td className="px-2 py-1 font-mono text-text-muted">{c.remote_addr}</td>

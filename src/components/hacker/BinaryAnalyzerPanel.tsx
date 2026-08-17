@@ -18,7 +18,7 @@ function ImportRow({ group }: { group: ImportGroup }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-md border border-border bg-base">
-      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[11px] text-text hover:bg-white/[0.03]">
+      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[11px] text-text hover:bg-overlay/[0.03]">
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         <Package size={12} className="text-text-dim" />
         <span className="flex-1 truncate font-mono">{group.library}</span>

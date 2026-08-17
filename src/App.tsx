@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { api } from "@/lib/tauri";
+import { applyTheme, THEME_SETTING_KEY, type AppTheme } from "@/lib/theme";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TabBar } from "@/components/layout/TabBar";
@@ -26,6 +28,19 @@ export default function App() {
       invoke("close_splashscreen").catch(() => {});
     }, 3600);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // El tema cacheado en localStorage (aplicado sincronicamente en
+    // main.tsx) ya evito el flash inicial — esto reconcilia contra la
+    // preferencia real guardada en la base de datos, por si difieren (ej.
+    // primer arranque sin cache local, o se reinstalo la app).
+    api
+      .getSetting(THEME_SETTING_KEY)
+      .then((v) => {
+        if (v === "light" || v === "dark") applyTheme(v as AppTheme);
+      })
+      .catch(() => {});
   }, []);
 
   return (

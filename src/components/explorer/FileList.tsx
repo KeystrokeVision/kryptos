@@ -97,7 +97,7 @@ export function FileList({ entries, onOpen, onRename, onDelete, onCopy, onCut, o
               }}
               className={cn(
                 "group cursor-default border-t border-borderMuted",
-                isSelected ? "bg-accent/15 hover:bg-accent/20" : "hover:bg-white/[0.03]",
+                isSelected ? "bg-accent/15 hover:bg-accent/20" : "hover:bg-overlay/[0.03]",
                 isCut && !isSelected && "bg-accent/5",
                 isDragging && "opacity-40",
                 isDropTarget && "bg-accent/25 outline outline-1 outline-accent-bright -outline-offset-1"

@@ -82,7 +82,7 @@ export default function Processes() {
           </div>
           <button
             onClick={() => queryClient.invalidateQueries({ queryKey: ["processes"] })}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
             aria-label="Actualizar"
           >
             <RefreshCw size={13} className={isFetching ? "animate-spin" : ""} />
@@ -117,7 +117,7 @@ export default function Processes() {
             </thead>
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.pid} className="group border-t border-borderMuted hover:bg-white/[0.03]">
+                <tr key={p.pid} className="group border-t border-borderMuted hover:bg-overlay/[0.03]">
                   <td className="max-w-0 truncate px-3 py-1.5 text-text" title={p.name}>
                     {p.name}
                   </td>

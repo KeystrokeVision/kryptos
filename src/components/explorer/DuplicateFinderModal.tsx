@@ -99,7 +99,7 @@ export function DuplicateFinderModal({ path, onClose, onDeleted }: DuplicateFind
                   </div>
                   <div className="space-y-1">
                     {group.paths.map((p) => (
-                      <label key={p} className="flex items-center gap-2 rounded px-1 py-0.5 text-[11px] text-text-muted hover:bg-white/[0.03]">
+                      <label key={p} className="flex items-center gap-2 rounded px-1 py-0.5 text-[11px] text-text-muted hover:bg-overlay/[0.03]">
                         <input type="checkbox" checked={selected.has(p)} onChange={() => toggle(p)} />
                         <span className="truncate font-mono">{p}</span>
                       </label>

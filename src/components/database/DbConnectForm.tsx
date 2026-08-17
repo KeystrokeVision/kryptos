@@ -171,10 +171,10 @@ export function DbConnectForm({ onConnect }: DbConnectFormProps) {
               placeholder="Ruta al archivo .db / .sqlite"
               className="h-8 flex-1 rounded-md border border-border bg-base px-2.5 font-mono text-xs text-text outline-none focus:border-accent/60"
             />
-            <button type="button" onClick={pickSqliteFile} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]" title="Abrir archivo existente">
+            <button type="button" onClick={pickSqliteFile} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]" title="Abrir archivo existente">
               <FolderOpen size={13} />
             </button>
-            <button type="button" onClick={pickNewSqliteFile} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]" title="Crear archivo nuevo">
+            <button type="button" onClick={pickNewSqliteFile} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]" title="Crear archivo nuevo">
               Nuevo
             </button>
           </div>
@@ -247,7 +247,7 @@ export function DbConnectForm({ onConnect }: DbConnectFormProps) {
               testMutation.mutate();
             }}
             disabled={!isValid || testMutation.isPending}
-            className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md border border-border text-xs text-text-muted hover:bg-white/[0.04] disabled:opacity-40"
+            className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md border border-border text-xs text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
           >
             {testMutation.isPending ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
             Probar conexion

@@ -68,7 +68,7 @@ export function TimeMachinePanel() {
           disabled={!hasRange}
           className={cn(
             "flex h-7 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-[11px] disabled:opacity-40",
-            compareMode ? "border-accent bg-accent/10 text-accent-bright" : "border-border text-text-muted hover:bg-white/[0.04]"
+            compareMode ? "border-accent bg-accent/10 text-accent-bright" : "border-border text-text-muted hover:bg-overlay/[0.04]"
           )}
         >
           <GitCompare size={12} /> Comparar

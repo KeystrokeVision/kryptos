@@ -36,7 +36,7 @@ export function NetworkScanPanel() {
                 onClick={() => setScanType(t.id)}
                 className={cn(
                   "rounded-md border px-3 py-1.5 text-left text-[11px] transition-colors",
-                  scanType === t.id ? "border-accent/60 bg-accent/10 text-text" : "border-border text-text-muted hover:bg-white/[0.03]"
+                  scanType === t.id ? "border-accent/60 bg-accent/10 text-text" : "border-border text-text-muted hover:bg-overlay/[0.03]"
                 )}
               >
                 <p className="font-medium">{t.label}</p>

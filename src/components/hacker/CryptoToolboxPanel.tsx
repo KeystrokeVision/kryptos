@@ -21,7 +21,7 @@ import {
   xorBytes,
 } from "@/lib/hackerCrypto";
 
-const CONFIDENCE_TONE: Record<string, string> = { alta: "text-ok border-ok/40 bg-ok/10", media: "text-warn border-warn/40 bg-warn/10", baja: "text-text-dim border-borderMuted bg-white/[0.02]" };
+const CONFIDENCE_TONE: Record<string, string> = { alta: "text-ok border-ok/40 bg-ok/10", media: "text-warn border-warn/40 bg-warn/10", baja: "text-text-dim border-borderMuted bg-overlay/[0.02]" };
 
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
@@ -174,7 +174,7 @@ function EncodingBlock() {
               }}
               className={cn(
                 "rounded-full px-2.5 py-1 text-[11px]",
-                mode === e.id ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]"
+                mode === e.id ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]"
               )}
             >
               {e.label}

@@ -98,7 +98,7 @@ export function FileWatcherPanel() {
             <button
               onClick={pickFolder}
               disabled={!!watchId}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04] disabled:opacity-50"
+              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04] disabled:opacity-50"
             >
               <FolderOpen size={13} />
             </button>

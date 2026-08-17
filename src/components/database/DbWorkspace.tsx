@@ -158,8 +158,8 @@ export function DbWorkspace({ sessionId, params, label }: DbWorkspaceProps) {
               <button
                 onClick={() => browseTable(t)}
                 className={cn(
-                  "flex w-full items-center gap-1.5 px-2.5 py-1.5 text-left text-[11px] hover:bg-white/[0.04]",
-                  selectedTable === t.name ? "bg-white/[0.06] text-text" : "text-text-muted"
+                  "flex w-full items-center gap-1.5 px-2.5 py-1.5 text-left text-[11px] hover:bg-overlay/[0.04]",
+                  selectedTable === t.name ? "bg-overlay/[0.06] text-text" : "text-text-muted"
                 )}
               >
                 {t.kind === "view" ? <Eye size={11} className="shrink-0 text-text-dim" /> : <Table2 size={11} className="shrink-0 text-accent-bright" />}
@@ -267,7 +267,7 @@ export function DbWorkspace({ sessionId, params, label }: DbWorkspaceProps) {
                 </thead>
                 <tbody>
                   {result.rows.map((row, ri) => (
-                    <tr key={ri} className="border-t border-borderMuted hover:bg-white/[0.03]">
+                    <tr key={ri} className="border-t border-borderMuted hover:bg-overlay/[0.03]">
                       {row.map((cell, ci) => (
                         <td key={ci} className="max-w-[320px] truncate px-3 py-1 font-mono text-text-muted" title={cell === null ? "NULL" : String(cell)}>
                           {cell === null ? <span className="italic text-text-dim">NULL</span> : String(cell)}

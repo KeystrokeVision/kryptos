@@ -144,7 +144,7 @@ export function SentinelPanel() {
               <button
                 onClick={() => scanNow.mutate()}
                 disabled={scanNow.isPending}
-                className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-[11px] text-text-muted hover:bg-white/[0.04] disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-[11px] text-text-muted hover:bg-overlay/[0.04] disabled:opacity-50"
               >
                 <RefreshCw size={11} className={scanNow.isPending ? "animate-spin" : ""} />
                 Revisar ahora
@@ -152,7 +152,7 @@ export function SentinelPanel() {
               {running ? (
                 <button
                   onClick={() => stop.mutate()}
-                  className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-[11px] text-text-muted hover:bg-white/[0.04]"
+                  className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
                 >
                   <Square size={11} /> Detener
                 </button>
@@ -206,7 +206,7 @@ export function SentinelPanel() {
                     disabled={running}
                     className={cn(
                       "rounded px-2 py-1 text-[11px] transition-colors",
-                      interval === opt.secs ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]",
+                      interval === opt.secs ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]",
                       running && "cursor-not-allowed opacity-50"
                     )}
                   >
@@ -252,20 +252,20 @@ export function SentinelPanel() {
               <button
                 onClick={() => exportHistory.mutate()}
                 title="Exportar con hash SHA-256 de verificacion"
-                className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-white/[0.04]"
+                className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
               >
                 <Download size={11} className={exportHistory.isPending ? "animate-pulse" : ""} /> Exportar
               </button>
               <button
                 onClick={() => setConfirming("reiniciar")}
                 title="Volver a tomar el estado actual como referencia"
-                className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-white/[0.04]"
+                className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
               >
                 <RotateCcw size={11} /> Referencia
               </button>
               <button
                 onClick={() => setConfirming("limpiar")}
-                className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-white/[0.04]"
+                className="flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
               >
                 <Trash2 size={11} /> Limpiar
               </button>
@@ -293,7 +293,7 @@ export function SentinelPanel() {
                   onClick={() => setOnlyPending(!onlyPending)}
                   className={cn(
                     "rounded px-2 py-1 text-[11px] transition-colors",
-                    onlyPending ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]"
+                    onlyPending ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]"
                   )}
                 >
                   Solo sin revisar
@@ -301,7 +301,7 @@ export function SentinelPanel() {
                 {pending > 0 && (
                   <button
                     onClick={() => ackAll.mutate()}
-                    className="ml-auto flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-white/[0.04]"
+                    className="ml-auto flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
                   >
                     <CheckCheck size={11} /> Marcar todas como revisadas
                   </button>
@@ -343,7 +343,7 @@ export function SentinelPanel() {
                             {formatClock(alert.timestamp_unix)} · regla {alert.rule_id}
                           </p>
                           {alert.mitre_id && (
-                            <span className="mt-1.5 inline-block rounded border border-borderMuted bg-white/[0.03] px-1.5 py-0.5 font-mono text-[9px] text-text-dim">
+                            <span className="mt-1.5 inline-block rounded border border-borderMuted bg-overlay/[0.03] px-1.5 py-0.5 font-mono text-[9px] text-text-dim">
                               MITRE ATT&CK: {alert.mitre_id}
                             </span>
                           )}
@@ -352,7 +352,7 @@ export function SentinelPanel() {
                           <button
                             onClick={() => ackOne.mutate(alert.id)}
                             title="Marcar como revisada"
-                            className="shrink-0 rounded border border-border p-1 text-text-muted hover:bg-white/[0.04]"
+                            className="shrink-0 rounded border border-border p-1 text-text-muted hover:bg-overlay/[0.04]"
                           >
                             <Check size={11} />
                           </button>
@@ -372,7 +372,7 @@ export function SentinelPanel() {
                     onClick={() => setSourceFilter(src)}
                     className={cn(
                       "rounded px-2 py-1 text-[11px] transition-colors",
-                      sourceFilter === src ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]"
+                      sourceFilter === src ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]"
                     )}
                   >
                     {src === "todas" ? "Todas" : SOURCE_META[src].label}
@@ -453,7 +453,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
       onClick={onClick}
       className={cn(
         "rounded px-2 py-0.5 text-[11px] transition-colors",
-        active ? "bg-accent text-white" : "text-text-muted hover:bg-white/[0.04]"
+        active ? "bg-accent text-white" : "text-text-muted hover:bg-overlay/[0.04]"
       )}
     >
       {children}

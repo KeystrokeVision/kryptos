@@ -162,7 +162,7 @@ export function SshConnectForm({ onConnect }: SshConnectFormProps) {
                 placeholder="Ruta de la llave privada"
                 className="h-8 flex-1 rounded-md border border-border bg-base px-2.5 font-mono text-xs text-text outline-none focus:border-accent/60"
               />
-              <button type="button" onClick={pickKeyFile} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]">
+              <button type="button" onClick={pickKeyFile} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]">
                 <FolderOpen size={13} />
               </button>
             </div>

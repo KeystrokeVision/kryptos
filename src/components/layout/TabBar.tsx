@@ -29,7 +29,7 @@ export function TabBar() {
                   "group flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors",
                   isActive
                     ? "bg-panel text-text border border-border"
-                    : "text-text-muted hover:bg-white/[0.03] border border-transparent"
+                    : "text-text-muted hover:bg-overlay/[0.03] border border-transparent"
                 )}
               >
                 {tab.pinned && <Pin size={11} className="text-accent-bright" />}
@@ -42,7 +42,7 @@ export function TabBar() {
                       e.stopPropagation();
                       closeTab(tab.id);
                     }}
-                    className="ml-1 rounded p-0.5 text-text-dim opacity-0 hover:bg-white/10 hover:text-text group-hover:opacity-100"
+                    className="ml-1 rounded p-0.5 text-text-dim opacity-0 hover:bg-overlay/10 hover:text-text group-hover:opacity-100"
                   >
                     <X size={11} />
                   </button>
@@ -56,7 +56,7 @@ export function TabBar() {
       <button
         aria-label="Nueva pestana"
         onClick={() => openTab("terminal", "Terminal")}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
       >
         <Plus size={15} />
       </button>

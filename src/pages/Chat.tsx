@@ -173,7 +173,7 @@ export default function Chat() {
         {state === "hosting" ? <Server size={13} className="text-ok" /> : <Users size={13} className="text-ok" />}
         <span className="text-[11px] text-text">{state === "hosting" ? `Organizando en el puerto ${port}` : `Conectado a ${remoteHost}:${port}`}</span>
         <span className="text-[11px] text-text-dim">como {nick}</span>
-        <button onClick={handleDisconnect} className="ml-auto flex h-7 items-center gap-1.5 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-white/[0.04]">
+        <button onClick={handleDisconnect} className="ml-auto flex h-7 items-center gap-1.5 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-overlay/[0.04]">
           <LogOut size={12} /> Salir
         </button>
       </div>

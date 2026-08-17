@@ -96,7 +96,7 @@ export function QuickToolsBar() {
                 "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] transition-colors",
                 activeTool === t.id
                   ? "border-accent/50 bg-accent/10 text-accent-bright"
-                  : "border-border text-text-muted hover:bg-white/[0.03] hover:text-text"
+                  : "border-border text-text-muted hover:bg-overlay/[0.03] hover:text-text"
               )}
             >
               <Icon size={12} />
@@ -106,7 +106,7 @@ export function QuickToolsBar() {
         })}
         <button
           onClick={() => openTab("ssh", "SSH")}
-          className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] text-text-muted transition-colors hover:bg-white/[0.03] hover:text-text"
+          className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] text-text-muted transition-colors hover:bg-overlay/[0.03] hover:text-text"
         >
           <KeySquare size={12} />
           SSH
