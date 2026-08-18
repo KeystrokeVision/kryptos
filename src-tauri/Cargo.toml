@@ -17,6 +17,12 @@ tauri-plugin-dialog = "2.2"
 tauri-plugin-os = "2.2"
 tauri-plugin-autostart = "2.2"
 tauri-plugin-notification = "2.2"
+
+# Auto-actualizador: descarga y verifica (firma Ed25519) releases publicados
+# en GitHub, e instala. tauri-plugin-process expone restart() para relanzar
+# la app despues de instalar.
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.42", features = ["full"] }

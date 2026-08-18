@@ -2,11 +2,38 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { isEnabled as isAutostartEnabled, enable as enableAutostart, disable as disableAutostart } from "@tauri-apps/plugin-autostart";
 import { isPermissionGranted, requestPermission } from "@tauri-apps/plugin-notification";
-import { Settings as SettingsIcon, FolderOpen, TerminalSquare, Info, Check, Power, BellRing, Radar, Palette, Sun, Moon } from "lucide-react";
+import { getVersion } from "@tauri-apps/api/app";
+import { check as checkForUpdate, type Update } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
+import {
+  Settings as SettingsIcon,
+  FolderOpen,
+  TerminalSquare,
+  Info,
+  Check,
+  Power,
+  BellRing,
+  Radar,
+  Palette,
+  Sun,
+  Moon,
+  DownloadCloud,
+  RefreshCw,
+  PartyPopper,
+} from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { api } from "@/lib/tauri";
 import { TERMINAL_THEMES, DEFAULT_TERMINAL_THEME_ID } from "@/lib/terminalThemes";
 import { applyTheme, getCachedTheme, THEME_SETTING_KEY, type AppTheme } from "@/lib/theme";
+
+type UpdateState =
+  | { status: "idle" }
+  | { status: "checking" }
+  | { status: "up-to-date" }
+  | { status: "available"; update: Update }
+  | { status: "downloading"; percent: number | null }
+  | { status: "ready" }
+  | { status: "error"; message: string };
 
 const DEFAULT_SHELL_KEY = "terminal.default_shell";
 const TERMINAL_THEME_KEY = "terminal.theme";
@@ -19,6 +46,45 @@ export default function Settings() {
   const [notifPermission, setNotifPermission] = useState<"granted" | "denied" | "default" | null>(null);
   const [sentinelAutostart, setSentinelAutostart] = useState<boolean | null>(null);
   const [appTheme, setAppTheme] = useState<AppTheme>(getCachedTheme());
+  const [appVersion, setAppVersion] = useState<string>("");
+  const [updateState, setUpdateState] = useState<UpdateState>({ status: "idle" });
+
+  useEffect(() => {
+    getVersion()
+      .then(setAppVersion)
+      .catch(() => setAppVersion(""));
+  }, []);
+
+  async function handleCheckForUpdate() {
+    setUpdateState({ status: "checking" });
+    try {
+      const update = await checkForUpdate();
+      setUpdateState(update ? { status: "available", update } : { status: "up-to-date" });
+    } catch (err) {
+      setUpdateState({ status: "error", message: String(err) });
+    }
+  }
+
+  async function handleInstallUpdate(update: Update) {
+    setUpdateState({ status: "downloading", percent: null });
+    try {
+      let downloaded = 0;
+      let total = 0;
+      await update.downloadAndInstall((event) => {
+        if (event.event === "Started") {
+          total = event.data.contentLength ?? 0;
+        } else if (event.event === "Progress") {
+          downloaded += event.data.chunkLength;
+          setUpdateState({ status: "downloading", percent: total > 0 ? Math.round((downloaded / total) * 100) : null });
+        } else if (event.event === "Finished") {
+          setUpdateState({ status: "ready" });
+        }
+      });
+      setUpdateState({ status: "ready" });
+    } catch (err) {
+      setUpdateState({ status: "error", message: String(err) });
+    }
+  }
 
   useEffect(() => {
     api
@@ -308,13 +374,90 @@ export default function Settings() {
         <div className="flex items-start gap-3 text-xs">
           <Info size={14} className="mt-0.5 shrink-0 text-text-dim" />
           <div className="space-y-1 text-text-dim">
-            <p className="text-text">KRYPTOS v0.1.0</p>
+            <p className="text-text">KRYPTOS {appVersion ? `v${appVersion}` : ""}</p>
             <p>Terminal y suite de administracion/seguridad de sistemas construida con Tauri, React y Rust.</p>
-            <p>
-              Modulos activos: Dashboard, Terminal, Seguridad, Modo Hacker, Aplicaciones, Explorador, Procesos,
-              Servicios, Red, Configuracion.
-            </p>
+            <p>21 modulos — ver el README del proyecto para el listado completo.</p>
           </div>
+        </div>
+      </Card>
+
+      <Card title="Actualizaciones">
+        <div className="space-y-3 text-xs">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-text-dim">
+              <DownloadCloud size={13} />
+              <span>Buscar una version nueva en GitHub Releases</span>
+            </div>
+            <button
+              onClick={handleCheckForUpdate}
+              disabled={updateState.status === "checking" || updateState.status === "downloading"}
+              className="flex h-7 shrink-0 items-center gap-1.5 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
+            >
+              <RefreshCw size={12} className={updateState.status === "checking" ? "animate-spin" : ""} />
+              {updateState.status === "checking" ? "Buscando..." : "Buscar actualizaciones"}
+            </button>
+          </div>
+
+          {updateState.status === "up-to-date" && (
+            <p className="flex items-center gap-1.5 rounded-md border border-ok/30 bg-ok/10 px-2.5 py-2 text-[11px] text-ok">
+              <Check size={12} /> Ya tenes la ultima version
+            </p>
+          )}
+
+          {updateState.status === "error" && (
+            <p className="rounded-md border border-warn/30 bg-warn/10 px-2.5 py-2 text-[11px] text-warn">
+              No se pudo chequear: {updateState.message}
+            </p>
+          )}
+
+          {updateState.status === "available" && (
+            <div className="space-y-2 rounded-md border border-accent/40 bg-accent/10 px-2.5 py-2">
+              <p className="text-[11px] text-text">
+                Nueva version disponible: <span className="font-medium">v{updateState.update.version}</span>
+                {appVersion ? <span className="text-text-dim"> (tenes v{appVersion})</span> : null}
+              </p>
+              {updateState.update.body ? (
+                <p className="whitespace-pre-line text-[10px] text-text-dim">{updateState.update.body}</p>
+              ) : null}
+              <button
+                onClick={() => handleInstallUpdate(updateState.update)}
+                className="flex h-7 items-center gap-1.5 rounded-md bg-accent px-2.5 text-[11px] font-medium text-white hover:bg-accent-bright"
+              >
+                <DownloadCloud size={12} /> Descargar e instalar
+              </button>
+            </div>
+          )}
+
+          {updateState.status === "downloading" && (
+            <div className="space-y-1.5 rounded-md border border-border bg-base px-2.5 py-2">
+              <p className="text-[11px] text-text-dim">Descargando actualizacion...</p>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-overlay/10">
+                <div
+                  className="h-full rounded-full bg-accent transition-all"
+                  style={{ width: updateState.percent !== null ? `${updateState.percent}%` : "35%" }}
+                />
+              </div>
+            </div>
+          )}
+
+          {updateState.status === "ready" && (
+            <div className="space-y-2 rounded-md border border-ok/30 bg-ok/10 px-2.5 py-2">
+              <p className="flex items-center gap-1.5 text-[11px] text-ok">
+                <PartyPopper size={12} /> Instalada. Reinicia KRYPTOS para terminar.
+              </p>
+              <button
+                onClick={() => relaunch()}
+                className="flex h-7 items-center gap-1.5 rounded-md bg-accent px-2.5 text-[11px] font-medium text-white hover:bg-accent-bright"
+              >
+                <RefreshCw size={12} /> Reiniciar ahora
+              </button>
+            </div>
+          )}
+
+          <p className="text-[10px] text-text-dim">
+            Nunca se descarga ni instala nada sin que lo pidas aca. Los paquetes se verifican con firma Ed25519 antes
+            de instalarse — si la firma no coincide con la clave publica embebida, la instalacion se rechaza.
+          </p>
         </div>
       </Card>
     </div>

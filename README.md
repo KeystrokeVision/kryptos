@@ -160,6 +160,7 @@ vos mismo levantás.
 - Notificaciones nativas del sistema operativo
 - Paleta de comandos (**Ctrl+K**) para saltar a cualquier módulo al instante
 - Elevación de privilegios bajo demanda (UAC), nunca en silencio
+- **Auto-actualizador** (Configuración > Actualizaciones): botón para buscar una versión nueva en GitHub Releases, ver las notas, descargar e instalar — nunca en silencio ni automático. Cada paquete se verifica con firma Ed25519 contra la clave pública embebida antes de instalarse; si no coincide, se rechaza
 
 ## Filosofía de datos
 
@@ -258,10 +259,17 @@ git tag -a vX.Y.Z -m "vX.Y.Z"
 git push origin main --tags
 ```
 
+El push del tag dispara [`.github/workflows/release.yml`](.github/workflows/release.yml):
+compila el instalador de Windows, lo firma con la clave privada del
+auto-actualizador (secret `TAURI_SIGNING_PRIVATE_KEY`) y publica un
+**GitHub Release en borrador** con los binarios y el `latest.json` que
+`tauri-plugin-updater` consulta en runtime. Revisar el borrador y
+publicarlo es el único paso manual que queda — así una versión nunca
+llega a los usuarios sin que alguien la mire antes.
+
 ## Pendiente conocido
 
 - **Captura de paquetes (Wireshark-lite)**: evaluado y descartado por ahora — requeriría **Npcap** instalado por separado, una dependencia Rust nativa nueva (`pnet`/`pcap`) y probablemente permisos de Administrador. Queda como el candidato más grande de Modo Hacker si se retoma más adelante
-- **Auto-actualizador**: todavía sin `tauri-plugin-updater` — cada corrección hoy requiere reinstalar a mano. Necesita además firma de código e infraestructura de releases
 - **Plugins**: sigue siendo placeholder ("módulo en construcción") — no hay todavía un formato de manifiesto ni un mecanismo de carga definido
 - **Base de datos**: el cliente de PostgreSQL/MySQL corre siempre con `sslmode=prefer`/certificado sin validar cuando TLS está activado (igual criterio que el verificador TLS de Seguridad) — no hay todavía soporte para CA propia. Tipos exóticos de columna (arrays, tipos geométricos, enums propios de Postgres) se muestran como `<tipo>` en vez de convertirse
 - **Git**: solo push/pull/fetch por SSH (HTTPS se dejó fuera a propósito — requeriría una compilación vendorizada de OpenSSL que necesita Perl)
