@@ -40,8 +40,29 @@ código en sí es multiplataforma y compila también en Linux/macOS.
 **21 módulos** · **~39 archivos de comandos de backend en Rust** · base de
 datos **SQLite** local para auditoría e historial · **cero telemetría**.
 
+## Capturas
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/dashboard.png" alt="Dashboard" /><div align="center"><sub>Dashboard</sub></div></td>
+    <td width="50%"><img src="docs/screenshots/terminal.png" alt="Terminal" /><div align="center"><sub>Terminal</sub></div></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/explorador.png" alt="Explorador" /><div align="center"><sub>Explorador</sub></div></td>
+    <td width="50%"><img src="docs/screenshots/modo-hacker.png" alt="Modo Hacker" /><div align="center"><sub>Modo Hacker</sub></div></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/base-de-datos.png" alt="Base de datos" /><div align="center"><sub>Base de datos</sub></div></td>
+    <td width="50%"><img src="docs/screenshots/configuracion.png" alt="Configuración" /><div align="center"><sub>Configuración</sub></div></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/auto-actualizador.png" alt="Auto-actualizador" /><div align="center"><sub>Configuración &gt; Actualizaciones</sub></div></td>
+  </tr>
+</table>
+
 ## Índice
 
+- [Capturas](#capturas)
 - [Módulos](#módulos)
   - [Núcleo](#núcleo)
   - [Sistema](#sistema)

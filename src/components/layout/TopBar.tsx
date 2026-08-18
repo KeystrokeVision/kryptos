@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Minus, Square, X, User, Search, Sparkles } from "lucide-react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { getVersion } from "@tauri-apps/api/app";
 import { api } from "@/lib/tauri";
 import { HackerDemoOverlay } from "@/components/layout/HackerDemoOverlay";
 
@@ -10,6 +11,13 @@ import { HackerDemoOverlay } from "@/components/layout/HackerDemoOverlay";
 export function TopBar() {
   const { data: elevated } = useQuery({ queryKey: ["elevation", "status"], queryFn: api.isElevated });
   const [demoOpen, setDemoOpen] = useState(false);
+  const [version, setVersion] = useState("");
+
+  useEffect(() => {
+    getVersion()
+      .then(setVersion)
+      .catch(() => setVersion(""));
+  }, []);
 
   const appWindow = (() => {
     try {
@@ -27,7 +35,7 @@ export function TopBar() {
       <div data-tauri-drag-region className="flex items-center gap-2 text-xs text-text-muted">
         <div className="h-2 w-2 rounded-full bg-ok shadow-[0_0_8px_1px_rgba(0,210,106,0.6)]" />
         <span className="font-mono">KRYPTOS</span>
-        <span className="text-text-dim">v0.1.0</span>
+        {version ? <span className="text-text-dim">v{version}</span> : null}
       </div>
 
       <div className="flex items-center gap-3">
