@@ -15,6 +15,8 @@ fn main() {
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             tray::setup_tray(app)?;
             commands::window::snap_main_window_to_work_area(app);

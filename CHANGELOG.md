@@ -11,7 +11,16 @@ versión publicada tiene un tag `vX.Y.Z` en el repositorio.
 
 ## [Sin publicar]
 
-_Sin cambios todavía._
+### Agregado
+
+- **Auto-actualizador**: nueva sección "Actualizaciones" en Configuración —
+  buscar versión nueva, ver notas, descargar e instalar con un botón, y
+  reiniciar para terminar. Cada paquete se verifica con firma Ed25519
+  contra la clave pública embebida (`tauri-plugin-updater`) antes de
+  instalarse
+- `.github/workflows/release.yml`: al pushear un tag `vX.Y.Z`, compila el
+  instalador de Windows, lo firma y publica un GitHub Release en borrador
+  con el `latest.json` que consume el auto-actualizador
 
 ## [0.2.0] — 2026-08-17
 
