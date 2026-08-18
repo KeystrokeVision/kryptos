@@ -123,12 +123,20 @@ pub fn create_terminal_session(
     // real tome el control, asi que tambien alcanza a los programas nativos
     // que el usuario corra despues (dir, ping, git, etc.), no solo a
     // PowerShell.
+    // El prompt de cada shell se reemplaza por uno propio que siempre
+    // arranca con "kryptos" — asi la Terminal se identifica como parte de
+    // la app incluso pegada a otras consolas abiertas, en vez de mostrar
+    // el prompt generico del sistema operativo.
     #[cfg(target_os = "windows")]
     {
         if shell_program.to_lowercase().contains("powershell") || shell_program.to_lowercase().contains("pwsh") {
-            cmd.args(["-NoExit", "-Command", "chcp 65001 | Out-Null; Clear-Host"]);
+            cmd.args([
+                "-NoExit",
+                "-Command",
+                "chcp 65001 | Out-Null; Clear-Host; function prompt { 'kryptos PS ' + $PWD.Path + '> ' }",
+            ]);
         } else {
-            cmd.args(["/K", "chcp 65001>nul"]);
+            cmd.args(["/K", "chcp 65001>nul && prompt kryptos $P$G"]);
         }
     }
     if let Some(dir) = cwd {
@@ -137,7 +145,22 @@ pub fn create_terminal_session(
         }
     }
     #[cfg(not(target_os = "windows"))]
-    cmd.env("TERM", "xterm-256color");
+    {
+        cmd.env("TERM", "xterm-256color");
+        let shell_name = shell_program.rsplit('/').next().unwrap_or(&shell_program);
+        match shell_name {
+            "fish" => {
+                cmd.args(["--init-command", "function fish_prompt; echo -n 'kryptos '(prompt_pwd)'> '; end"]);
+            }
+            // bash, zsh y sh leen PS1 del entorno; para bash/zsh esto puede
+            // ser pisado despues por su propio .bashrc/.zshrc, que es el
+            // comportamiento esperado (las personalizaciones del usuario
+            // ganan), pero sigue siendo el prompt inicial real.
+            _ => {
+                cmd.env("PS1", "kryptos \\w $ ");
+            }
+        }
+    }
 
     let child = pair
         .slave
