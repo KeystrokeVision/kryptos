@@ -80,7 +80,7 @@ export function BinaryAnalyzerPanel() {
       {mutation.data && (
         <>
           <Card title="Resumen">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px] sm:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-x-4 gap-y-2 text-[11px]">
               <div><p className="text-text-dim">Formato</p><p className="text-text">{mutation.data.format}</p></div>
               <div><p className="text-text-dim">Arquitectura</p><p className="text-text">{mutation.data.architecture} · {mutation.data.is_64_bit ? "64 bits" : "32 bits"}</p></div>
               <div><p className="text-text-dim">Tipo</p><p className="text-text">{mutation.data.is_library ? "Biblioteca (DLL/.so)" : "Ejecutable"}</p></div>

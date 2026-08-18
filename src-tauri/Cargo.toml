@@ -60,6 +60,17 @@ argon2 = "0.5"
 # filesystem/asset-protocol permissions to display arbitrary local images.
 base64 = "0.22"
 
+# Extracts .zip archives when importing a portable program into Aplicaciones
+# (deflate only — that covers the vast majority of portable-app zips and
+# keeps the dependency tree lean; enclosed_name() on each entry rejects
+# zip-slip path traversal).
+zip = { version = "2", default-features = false, features = ["deflate"] }
+
+# Draws the small alert-state badge onto the tray icon (png decode only —
+# no other format support needed, this only ever reads our own bundled
+# icons/icon.png).
+image = { version = "0.25", default-features = false, features = ["png"] }
+
 # Local audit trail (who deleted what, when) — bundled compiles SQLite from
 # source, so the Windows build doesn't need a separately installed SQLite.
 rusqlite = { version = "0.32", features = ["bundled"] }

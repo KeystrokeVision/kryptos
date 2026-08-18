@@ -76,7 +76,7 @@ export function TlsPanel() {
                 )}
               </div>
 
-              <div className="mt-3 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+              <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-x-6 gap-y-2">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest text-text-dim">Sujeto</p>
                   <p className="break-all font-mono text-text-muted">{info.subject}</p>

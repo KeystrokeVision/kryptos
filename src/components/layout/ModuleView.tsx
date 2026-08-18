@@ -19,6 +19,7 @@ import Docker from "@/pages/Docker";
 import Ssh from "@/pages/Ssh";
 import Chat from "@/pages/Chat";
 import Database from "@/pages/Database";
+import Scripts from "@/pages/Scripts";
 import ModulePlaceholder from "@/pages/ModulePlaceholder";
 
 /**
@@ -69,6 +70,8 @@ export function ModuleView({ tab }: { tab: Tab }) {
       return <Chat />;
     case "database":
       return <Database />;
+    case "scripts":
+      return <Scripts />;
     default:
       return <ModulePlaceholder icon={mod.icon} title={mod.label} description={mod.description} />;
   }

@@ -102,7 +102,7 @@ export default function OperationsCenter() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         <Card title="Nivel de seguridad">
           {status.data?.has_baseline ? (
             <Gauge value={status.data.posture_score} label="Postura general" sublabel={`${status.data.unacknowledged_count} alertas sin revisar`} size={72} />
@@ -131,7 +131,7 @@ export default function OperationsCenter() {
               solo, sin tener que hacer nada mas.
             </p>
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3">
               {fleetMembers.map((m) => (
                 <div key={m.nick} className="rounded-md border border-border bg-base p-2.5">
                   <div className="mb-1.5 flex items-center gap-1.5 text-[11px]">
@@ -159,8 +159,8 @@ export default function OperationsCenter() {
         </Card>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="Mapa de red en vivo" className="xl:col-span-2">
+      <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
+        <Card title="Mapa de red en vivo" className="lg:col-span-2">
           <NetworkGraph connections={connections.data ?? []} processes={processes.data ?? []} height={420} />
         </Card>
 

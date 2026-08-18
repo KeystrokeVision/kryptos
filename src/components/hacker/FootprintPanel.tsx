@@ -76,7 +76,7 @@ export function FootprintPanel() {
       </Card>
 
       {hasResults && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
           <Card title="Registros DNS">
             {dnsMutation.isError && <ErrorBox err={dnsMutation.error} />}
             {dnsMutation.data && (

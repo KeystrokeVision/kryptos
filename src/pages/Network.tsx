@@ -108,7 +108,7 @@ export default function NetworkModule() {
 
   return (
     <div className="h-full space-y-4 overflow-y-auto p-5">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
         <Card title="Trafico en tiempo real" className="lg:col-span-2">
           <div className="space-y-3">
             <div>
@@ -159,7 +159,7 @@ export default function NetworkModule() {
       </div>
 
       <Card title="Interfaces">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
           {(netInfo?.interfaces ?? []).map((iface) => (
             <div key={iface.name} className="rounded-md border border-border bg-base p-3 text-[11px]">
               <div className="flex items-center gap-1.5">
@@ -186,7 +186,7 @@ export default function NetworkModule() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
         <Card
           title="Tabla ARP"
           action={

@@ -15,6 +15,32 @@ pub fn run_powershell_utf8(script: &str) -> std::io::Result<std::process::Output
         .output()
 }
 
+/// Root folder for anything meant to travel with KRYPTOS itself rather than
+/// stay tied to this one Windows profile — the app launcher's entries
+/// (shortcuts, imported portable programs) and the scripts library. Lives
+/// right next to the running executable (`<kryptos>/kryptos_data/`), so
+/// zipping up the KRYPTOS folder and handing it to someone else brings
+/// along the same apps/scripts you set up, the same way a portable
+/// program carries its own settings folder alongside it — unlike the
+/// per-machine audit log and security baselines, which stay in the
+/// Windows profile on purpose (see `db.rs`, `commands::baseline`).
+///
+/// Requires KRYPTOS to run from a folder the current user can write to
+/// (Desktop, Documents, a USB stick, `C:\KRYPTOS`, ...) rather than
+/// straight out of `Program Files` without elevation.
+pub fn portable_data_root() -> Result<std::path::PathBuf, String> {
+    let exe = std::env::current_exe().map_err(|e| format!("No se pudo determinar la ubicacion de KRYPTOS: {e}"))?;
+    let base = exe.parent().ok_or_else(|| "No se pudo determinar la carpeta de KRYPTOS.".to_string())?;
+    let dir = base.join("kryptos_data");
+    std::fs::create_dir_all(&dir).map_err(|e| {
+        format!(
+            "No se pudo crear la carpeta de datos de KRYPTOS junto al programa ('{}'): {e}. Si KRYPTOS esta en una carpeta protegida (como Archivos de Programa), muevelo a una carpeta con permiso de escritura, como el Escritorio o Documentos.",
+            dir.display()
+        )
+    })?;
+    Ok(dir)
+}
+
 pub mod apps;
 pub mod binary_analysis;
 pub mod disk_usage;
@@ -30,6 +56,7 @@ pub mod file_crypto;
 pub mod file_watch;
 pub mod firewall;
 pub mod git;
+pub mod hacktools;
 pub mod honeytoken;
 pub mod logs;
 pub mod network_details;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Fingerprint, Binary, ImageIcon, Search, BookOpen, TerminalSquare, FlaskConical, Wifi, Usb, ShieldAlert, FileSearch, KeyRound, type LucideIcon } from "lucide-react";
+import { Fingerprint, Binary, ImageIcon, Search, BookOpen, TerminalSquare, FlaskConical, Wifi, Usb, ShieldAlert, FileSearch, KeyRound, Radar, Swords, type LucideIcon } from "lucide-react";
 import { FootprintPanel } from "@/components/hacker/FootprintPanel";
 import { CryptoToolboxPanel } from "@/components/hacker/CryptoToolboxPanel";
 import { SteganographyPanel } from "@/components/hacker/SteganographyPanel";
@@ -12,6 +12,8 @@ import { UsbMonitorPanel } from "@/components/hacker/UsbMonitorPanel";
 import { VulnScanPanel } from "@/components/hacker/VulnScanPanel";
 import { BinaryAnalyzerPanel } from "@/components/hacker/BinaryAnalyzerPanel";
 import { HashCrackerPanel } from "@/components/hacker/HashCrackerPanel";
+import { ArsenalPanel } from "@/components/hacker/ArsenalPanel";
+import { NetworkScanPanel } from "@/components/security/NetworkScanPanel";
 import { cn } from "@/lib/utils";
 
 interface HackerTool {
@@ -22,12 +24,14 @@ interface HackerTool {
 
 const TOOLS: HackerTool[] = [
   { id: "footprint", label: "Huella propia", icon: Fingerprint },
+  { id: "arsenal", label: "Arsenal (30+ herramientas)", icon: Swords },
+  { id: "nmap", label: "NMAP", icon: Radar },
   { id: "crypto", label: "Caja de cripto", icon: Binary },
   { id: "stego", label: "Esteganografia", icon: ImageIcon },
   { id: "dorks", label: "Dorking (recon)", icon: Search },
   { id: "cheatsheet", label: "Cheatsheet Linux", icon: BookOpen },
   { id: "neofetch", label: "neofetch", icon: TerminalSquare },
-  { id: "lab", label: "Laboratorio (Docker)", icon: FlaskConical },
+  { id: "lab", label: "Laboratorios (Docker)", icon: FlaskConical },
   { id: "wireless", label: "Wi-Fi y Bluetooth", icon: Wifi },
   { id: "usb", label: "Monitor USB", icon: Usb },
   { id: "vulnscan", label: "Escaneo de CVEs instaladas", icon: ShieldAlert },
@@ -71,6 +75,8 @@ export default function HackerToolkit() {
 
       <div className="min-h-0 flex-1">
         {active.id === "footprint" && <FootprintPanel />}
+        {active.id === "arsenal" && <ArsenalPanel />}
+        {active.id === "nmap" && <NetworkScanPanel />}
         {active.id === "crypto" && <CryptoToolboxPanel />}
         {active.id === "stego" && <SteganographyPanel />}
         {active.id === "dorks" && <DorkGeneratorPanel />}

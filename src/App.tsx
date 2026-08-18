@@ -11,6 +11,7 @@ import { MonitorPanel } from "@/components/layout/MonitorPanel";
 import { QuickToolsBar } from "@/components/layout/QuickToolsBar";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { SentinelWatcher } from "@/components/layout/SentinelWatcher";
+import { TrayBridge } from "@/components/layout/TrayBridge";
 import { FleetWatcher } from "@/components/layout/FleetWatcher";
 import { BreachOverlay } from "@/components/layout/BreachOverlay";
 import { FleetActionListener } from "@/components/layout/FleetActionListener";
@@ -21,13 +22,13 @@ export default function App() {
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0];
 
   useEffect(() => {
-    // Wait for the splash's own boot sequence + fade-out (~3.6s, see
+    // Wait for the splash's own boot sequence + fade-out (~4.4s, see
     // public/splashscreen.html + public/splashscreen.js) to actually finish
     // before swapping windows — otherwise a fast machine would cut the
     // matrix-rain/typing effect short.
     const timer = setTimeout(() => {
       invoke("close_splashscreen").catch(() => {});
-    }, 3600);
+    }, 4400);
     return () => clearTimeout(timer);
   }, []);
 
@@ -75,6 +76,7 @@ export default function App() {
       <StatusBar />
       <CommandPalette />
       <SentinelWatcher />
+      <TrayBridge />
       <FleetWatcher />
       <FleetActionListener />
       <BreachOverlay />

@@ -72,7 +72,7 @@ export function FileIntegrityPanel() {
   const drift = compareMutation.data;
 
   return (
-    <div className="grid h-full grid-cols-1 gap-4 overflow-y-auto p-5 xl:grid-cols-2">
+    <div className="grid h-full grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 overflow-y-auto p-5">
       <Card title="Escanear y crear linea base">
         <div className="space-y-3">
           <p className="text-xs text-text-dim">

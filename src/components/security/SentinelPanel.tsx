@@ -180,7 +180,7 @@ export function SentinelPanel() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-2">
               <Stat
                 label="Estado"
                 value={running ? "Vigilando" : "Detenido"}

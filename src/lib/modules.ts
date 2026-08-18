@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Radar,
   Skull,
+  PlaySquare,
   type LucideIcon,
 } from "lucide-react";
 import type { ModuleId } from "@/store/useTabStore";
@@ -49,6 +50,7 @@ export const MODULES: ModuleDef[] = [
   { id: "git", label: "Git", description: "Repositorios", icon: GitBranch, group: "dev" },
   { id: "docker", label: "Docker", description: "Contenedores e imagenes", icon: Container, group: "dev" },
   { id: "editor", label: "Editor", description: "Editor de codigo", icon: FileCode2, group: "dev" },
+  { id: "scripts", label: "Scripts", description: "Tus scripts guardados, listos para correr", icon: PlaySquare, group: "dev" },
   { id: "database", label: "Base de datos", description: "SQLite / PostgreSQL / MySQL", icon: Database, group: "dev" },
   { id: "logs", label: "Logs", description: "Registros del sistema", icon: ScrollText, group: "dev" },
 

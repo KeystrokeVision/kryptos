@@ -6,9 +6,16 @@ export interface AppEntry {
   exe_path: string;
   icon_file: string | null;
   added_at_unix: number;
+  is_portable: boolean;
 }
 
 export interface DiscoveredApp {
   name: string;
   exec_path: string;
+}
+
+export interface PortableImportResult {
+  import_id: string;
+  candidates: string[];
+  guessed_exe: string | null;
 }
