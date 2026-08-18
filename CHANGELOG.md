@@ -21,6 +21,15 @@ versión publicada tiene un tag `vX.Y.Z` en el repositorio.
 - `.github/workflows/release.yml`: al pushear un tag `vX.Y.Z`, compila el
   instalador de Windows, lo firma y publica un GitHub Release en borrador
   con el `latest.json` que consume el auto-actualizador
+- Sección "Capturas" en el README con pantallazos reales de Dashboard,
+  Terminal, Explorador, Modo Hacker, Base de datos, Configuración y
+  Configuración > Actualizaciones
+
+### Corregido
+
+- La versión junto al logo en la barra superior venía hardcodeada en
+  "v0.1.0"; ahora se lee en runtime con `getVersion()`, igual que en
+  Configuración > Acerca de
 
 ## [0.2.0] — 2026-08-17
 
