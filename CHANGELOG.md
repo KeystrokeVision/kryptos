@@ -30,6 +30,10 @@ versión publicada tiene un tag `vX.Y.Z` en el repositorio.
 - La versión junto al logo en la barra superior venía hardcodeada en
   "v0.1.0"; ahora se lee en runtime con `getVersion()`, igual que en
   Configuración > Acerca de
+- **Terminal**: el prompt de cada pestaña nueva ahora siempre arranca con
+  "kryptos" (antes solo aparecía una vez en el banner ASCII inicial y se
+  perdía apenas el shell tomaba el control) — PowerShell, CMD, bash/zsh/sh
+  y fish
 
 ## [0.2.0] — 2026-08-17
 
