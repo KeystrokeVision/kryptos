@@ -89,17 +89,17 @@ export function SftpBrowser({ connectParams }: SftpBrowserProps) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-10 shrink-0 items-center gap-1 border-b border-borderMuted bg-panelAlt px-2">
-        <button onClick={goUp} disabled={path === "/"} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text disabled:opacity-30" aria-label="Subir">
+        <button onClick={goUp} disabled={path === "/"} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text disabled:opacity-30" aria-label="Subir">
           <ArrowUp size={13} />
         </button>
         <span className="flex-1 truncate rounded-md bg-base px-2 py-1 font-mono text-[11px] text-text-muted">{path}</span>
-        <button onClick={uploadFile} className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text">
+        <button onClick={uploadFile} className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text">
           <Upload size={12} /> Subir
         </button>
-        <button onClick={() => setNewFolderOpen(true)} className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text">
+        <button onClick={() => setNewFolderOpen(true)} className="flex h-7 items-center gap-1 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text">
           <FolderPlus size={12} /> Carpeta
         </button>
-        <button onClick={refresh} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Actualizar">
+        <button onClick={refresh} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Actualizar">
           <RefreshCw size={13} className={listQuery.isFetching ? "animate-spin" : ""} />
         </button>
       </div>
@@ -123,7 +123,7 @@ export function SftpBrowser({ connectParams }: SftpBrowserProps) {
           </thead>
           <tbody>
             {(listQuery.data ?? []).map((entry) => (
-              <tr key={entry.name} onDoubleClick={() => navigate(entry)} className="group border-t border-borderMuted hover:bg-white/[0.03]">
+              <tr key={entry.name} onDoubleClick={() => navigate(entry)} className="group border-t border-borderMuted hover:bg-overlay/[0.03]">
                 <td className="px-3 py-1.5">
                   <div className="flex items-center gap-2">
                     {entry.is_dir ? <Folder size={13} className="shrink-0 text-accent-bright" /> : <FileIcon size={13} className="shrink-0 text-text-dim" />}

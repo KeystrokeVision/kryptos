@@ -28,7 +28,7 @@ export function WirelessPanel() {
           <button
             onClick={() => wifi.mutate()}
             disabled={wifi.isPending}
-            className="flex h-7 items-center gap-1.5 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-white/[0.04] disabled:opacity-40"
+            className="flex h-7 items-center gap-1.5 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
           >
             <RefreshCw size={12} className={wifi.isPending ? "animate-spin" : ""} /> Escanear
           </button>
@@ -64,7 +64,7 @@ export function WirelessPanel() {
           <button
             onClick={() => bluetooth.mutate()}
             disabled={bluetooth.isPending}
-            className="flex h-7 items-center gap-1.5 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-white/[0.04] disabled:opacity-40"
+            className="flex h-7 items-center gap-1.5 rounded-md border border-border px-2.5 text-[11px] text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
           >
             <RefreshCw size={12} className={bluetooth.isPending ? "animate-spin" : ""} /> Actualizar
           </button>

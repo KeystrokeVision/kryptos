@@ -18,7 +18,7 @@ function ImportRow({ group }: { group: ImportGroup }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-md border border-border bg-base">
-      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[11px] text-text hover:bg-white/[0.03]">
+      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-[11px] text-text hover:bg-overlay/[0.03]">
         {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         <Package size={12} className="text-text-dim" />
         <span className="flex-1 truncate font-mono">{group.library}</span>
@@ -80,7 +80,7 @@ export function BinaryAnalyzerPanel() {
       {mutation.data && (
         <>
           <Card title="Resumen">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px] sm:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-x-4 gap-y-2 text-[11px]">
               <div><p className="text-text-dim">Formato</p><p className="text-text">{mutation.data.format}</p></div>
               <div><p className="text-text-dim">Arquitectura</p><p className="text-text">{mutation.data.architecture} · {mutation.data.is_64_bit ? "64 bits" : "32 bits"}</p></div>
               <div><p className="text-text-dim">Tipo</p><p className="text-text">{mutation.data.is_library ? "Biblioteca (DLL/.so)" : "Ejecutable"}</p></div>

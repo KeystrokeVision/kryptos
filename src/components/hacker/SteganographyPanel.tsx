@@ -173,7 +173,7 @@ function HideBlock() {
             <a
               href={resultUrl}
               download="kryptos-stego.png"
-              className="flex h-8 w-fit items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]"
+              className="flex h-8 w-fit items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]"
             >
               <Download size={13} /> Descargar PNG
             </a>
@@ -249,7 +249,7 @@ export function SteganographyPanel() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={cn("rounded-full px-3 py-1 text-xs", tab === t ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]")}
+            className={cn("rounded-full px-3 py-1 text-xs", tab === t ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]")}
           >
             {t === "hide" ? "Ocultar" : "Revelar"}
           </button>

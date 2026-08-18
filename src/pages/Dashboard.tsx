@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Cpu, MemoryStick, HardDrive, Server, History, CheckCircle2, XCircle, ShieldCheck, ArrowRight, Radar } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Gauge } from "@/components/ui/Gauge";
+import { VerdictPanel } from "@/components/dashboard/VerdictPanel";
 import { api } from "@/lib/tauri";
 import { formatBytes, formatUptime } from "@/lib/format";
 import { useTabStore } from "@/store/useTabStore";
@@ -62,6 +63,8 @@ export default function Dashboard() {
         </div>
       )}
 
+      <VerdictPanel />
+
       {/* Solo aparece cuando Sentinel encontro algo. Un banner permanente
           que casi siempre dice "todo bien" se vuelve invisible al tercer dia. */}
       {!!sentinel?.unacknowledged_count && (
@@ -81,7 +84,7 @@ export default function Dashboard() {
         </button>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         <motion.div {...cardMotion}>
           <Card title="CPU">
             <Gauge
@@ -156,8 +159,8 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <motion.div className="xl:col-span-2" {...cardMotion} transition={{ ...cardMotion.transition, delay: 0.12 }}>
+      <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
+        <motion.div className="lg:col-span-2" {...cardMotion} transition={{ ...cardMotion.transition, delay: 0.12 }}>
           <Card title="Procesos con mayor consumo de CPU">
             <table className="w-full text-left text-xs">
               <thead>

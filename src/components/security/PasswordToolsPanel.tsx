@@ -140,7 +140,7 @@ export function PasswordToolsPanel() {
                 {[0, 1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className={cn("h-1.5 flex-1 rounded-full", i <= strengthMutation.data!.score ? SCORE_COLORS[strengthMutation.data!.score] : "bg-white/10")}
+                    className={cn("h-1.5 flex-1 rounded-full", i <= strengthMutation.data!.score ? SCORE_COLORS[strengthMutation.data!.score] : "bg-overlay/10")}
                   />
                 ))}
               </div>
@@ -157,7 +157,7 @@ export function PasswordToolsPanel() {
                 <button
                   onClick={() => pwnedMutation.mutate(testPassword)}
                   disabled={!testPassword || pwnedMutation.isPending}
-                  className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04] disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
                 >
                   <Wifi size={13} className={pwnedMutation.isPending ? "animate-pulse" : ""} />
                   {pwnedMutation.isPending ? "Consultando Have I Been Pwned..." : "Verificar filtraciones (opcional, contacta un servicio externo)"}

@@ -67,7 +67,7 @@ export function FileCryptoPanel() {
               placeholder="Archivo..."
               className="h-9 flex-1 rounded-md border border-border bg-base px-3 font-mono text-xs text-text outline-none focus:border-accent/60"
             />
-            <button onClick={pickFile} className="flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]">
+            <button onClick={pickFile} className="flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]">
               <FileLock2 size={13} /> Elegir
             </button>
           </div>

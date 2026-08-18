@@ -1,29 +1,42 @@
 import type { Config } from "tailwindcss";
 
-// KRYPTOS design tokens — premium dark terminal aesthetic
+// Cada token de color se resuelve contra una variable CSS (definida para
+// tema oscuro y claro en src/styles/globals.css) en vez de un hex fijo, asi
+// los modificadores de opacidad de Tailwind (bg-panel/40, border-ok/30...)
+// siguen funcionando igual que antes en los dos temas.
+function withOpacity(variable: string) {
+  return ({ opacityValue }: { opacityValue?: string }) =>
+    opacityValue !== undefined ? `rgb(var(${variable}) / ${opacityValue})` : `rgb(var(${variable}))`;
+}
+
+// KRYPTOS design tokens — premium terminal aesthetic, oscuro y claro
 export default {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        base: "#050505",
-        panel: "#0A0A0A",
-        panelAlt: "#0D0D0D",
-        border: "#222222",
-        borderMuted: "#1A1A1A",
+        base: withOpacity("--kryptos-base"),
+        panel: withOpacity("--kryptos-panel"),
+        panelAlt: withOpacity("--kryptos-panel-alt"),
+        border: withOpacity("--kryptos-border"),
+        borderMuted: withOpacity("--kryptos-border-muted"),
         text: {
-          DEFAULT: "#EAEAEA",
-          muted: "#8A8A8A",
-          dim: "#5C5C5C",
+          DEFAULT: withOpacity("--kryptos-text"),
+          muted: withOpacity("--kryptos-text-muted"),
+          dim: withOpacity("--kryptos-text-dim"),
         },
         accent: {
-          DEFAULT: "#B00020",
-          bright: "#FF3B3B",
-          dim: "#4A0010",
+          DEFAULT: withOpacity("--kryptos-accent"),
+          bright: withOpacity("--kryptos-accent-bright"),
+          dim: withOpacity("--kryptos-accent-dim"),
         },
-        ok: "#00D26A",
-        warn: "#FFB020",
+        ok: withOpacity("--kryptos-ok"),
+        warn: withOpacity("--kryptos-warn"),
+        // Overlay de realce (hover/seleccion) relativo a la superficie que
+        // tiene debajo — antes era literalmente "blanco a baja opacidad",
+        // lo que en tema claro se volvia invisible. Ver globals.css.
+        overlay: withOpacity("--kryptos-overlay"),
       },
       fontFamily: {
         mono: ["JetBrains Mono", "Fira Code", "ui-monospace", "monospace"],

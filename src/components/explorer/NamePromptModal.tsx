@@ -43,7 +43,7 @@ export function NamePromptModal({
         />
         {errorMessage && <p className="text-xs text-accent-bright">{errorMessage}</p>}
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="h-8 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]">
+          <button type="button" onClick={onCancel} className="h-8 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]">
             Cancelar
           </button>
           <button

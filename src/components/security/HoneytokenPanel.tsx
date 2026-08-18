@@ -77,7 +77,7 @@ export function HoneytokenPanel() {
                   key={p.fileName}
                   onClick={() => setPreset(p)}
                   className={`rounded px-2 py-1 text-[11px] transition-colors ${
-                    preset.fileName === p.fileName ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]"
+                    preset.fileName === p.fileName ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]"
                   }`}
                 >
                   {p.label}
@@ -94,7 +94,7 @@ export function HoneytokenPanel() {
               />
               <button
                 onClick={pickFolder}
-                className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]"
+                className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]"
               >
                 <FolderOpen size={13} />
               </button>

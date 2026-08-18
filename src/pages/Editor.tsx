@@ -182,7 +182,7 @@ export default function CodeEditor() {
         {projectRoot && (
           <button
             onClick={() => setSidebarOpen((v) => !v)}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
             aria-label="Mostrar/ocultar explorador"
           >
             {sidebarOpen ? <PanelLeftClose size={13} /> : <PanelLeftOpen size={13} />}
@@ -195,7 +195,7 @@ export default function CodeEditor() {
               onClick={() => setActiveId(tab.id)}
               className={cn(
                 "group flex h-7 shrink-0 cursor-pointer items-center gap-1.5 rounded-md px-2 text-[11px]",
-                tab.id === activeId ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-white/[0.03]"
+                tab.id === activeId ? "bg-base text-text border border-borderMuted" : "text-text-dim hover:bg-overlay/[0.03]"
               )}
             >
               <FileCode2 size={11} className={tab.id === activeId ? "text-accent-bright" : "text-text-dim"} />
@@ -206,7 +206,7 @@ export default function CodeEditor() {
                   e.stopPropagation();
                   requestClose(tab);
                 }}
-                className="rounded p-0.5 text-text-dim opacity-0 hover:bg-white/10 hover:text-text group-hover:opacity-100"
+                className="rounded p-0.5 text-text-dim opacity-0 hover:bg-overlay/10 hover:text-text group-hover:opacity-100"
               >
                 <X size={10} />
               </button>
@@ -214,13 +214,13 @@ export default function CodeEditor() {
           ))}
         </div>
 
-        <button onClick={() => openMutation.mutate()} className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text">
+        <button onClick={() => openMutation.mutate()} className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text">
           <FolderOpen size={13} /> Abrir
         </button>
-        <button onClick={openFolder} className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text">
+        <button onClick={openFolder} className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text">
           <FolderTree size={13} /> Carpeta
         </button>
-        <button onClick={newTab} className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-white/[0.06] hover:text-text">
+        <button onClick={newTab} className="flex h-7 items-center gap-1.5 rounded-md px-2 text-[11px] text-text-dim hover:bg-overlay/[0.06] hover:text-text">
           <FilePlus2 size={13} /> Nuevo
         </button>
         <div className="relative">
@@ -228,7 +228,7 @@ export default function CodeEditor() {
             onClick={() => setSnippetsOpen((v) => !v)}
             className={cn(
               "flex h-7 items-center gap-1 rounded-md px-2 text-[11px]",
-              snippetsOpen ? "text-accent-bright" : "text-text-dim hover:bg-white/[0.06] hover:text-text"
+              snippetsOpen ? "text-accent-bright" : "text-text-dim hover:bg-overlay/[0.06] hover:text-text"
             )}
           >
             <BookMarked size={13} /> Scripts <ChevronDown size={10} />
@@ -249,7 +249,7 @@ export default function CodeEditor() {
                 <div className="flex flex-wrap gap-1">
                   <button
                     onClick={() => setSnippetCategory("todas")}
-                    className={cn("rounded-full px-2 py-0.5 text-[10px]", snippetCategory === "todas" ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]")}
+                    className={cn("rounded-full px-2 py-0.5 text-[10px]", snippetCategory === "todas" ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]")}
                   >
                     Todas
                   </button>
@@ -257,7 +257,7 @@ export default function CodeEditor() {
                     <button
                       key={c}
                       onClick={() => setSnippetCategory(c)}
-                      className={cn("rounded-full px-2 py-0.5 text-[10px]", snippetCategory === c ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]")}
+                      className={cn("rounded-full px-2 py-0.5 text-[10px]", snippetCategory === c ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]")}
                     >
                       {SCRIPT_CATEGORIES[c]}
                     </button>
@@ -267,7 +267,7 @@ export default function CodeEditor() {
               <div className="max-h-96 overflow-y-auto">
                 {filteredSnippets.length === 0 && <p className="px-3 py-3 text-[11px] text-text-dim">Sin resultados.</p>}
                 {filteredSnippets.map((s) => (
-                  <button key={s.id} onClick={() => openSnippet(s)} className="block w-full border-b border-borderMuted px-3 py-2 text-left last:border-b-0 hover:bg-white/[0.04]">
+                  <button key={s.id} onClick={() => openSnippet(s)} className="block w-full border-b border-borderMuted px-3 py-2 text-left last:border-b-0 hover:bg-overlay/[0.04]">
                     <div className="flex items-center gap-1.5">
                       <p className="flex-1 text-[11px] text-text">{s.title}</p>
                       <span className="shrink-0 text-[9px] uppercase text-text-dim">{s.os === "any" ? "" : s.os}</span>

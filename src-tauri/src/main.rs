@@ -17,6 +17,7 @@ fn main() {
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
             tray::setup_tray(app)?;
+            commands::window::snap_main_window_to_work_area(app);
             Ok(())
         })
         .manage(commands::terminal::TerminalManager::default())
@@ -25,6 +26,7 @@ fn main() {
         .manage(commands::chat::ChatManager::default())
         .manage(commands::sentinel::SentinelManager::default())
         .manage(commands::honeytoken::HoneytokenManager::default())
+        .manage(commands::database::DatabaseManager::default())
         .manage(database)
         .invoke_handler(tauri::generate_handler![
             commands::system::get_system_snapshot,
@@ -62,6 +64,10 @@ fn main() {
             commands::apps::get_app_icon_data_url,
             commands::apps::launch_application,
             commands::apps::list_installed_applications,
+            commands::apps::open_application_folder,
+            commands::apps::import_portable_source,
+            commands::apps::cancel_portable_import,
+            commands::apps::finalize_portable_app,
             commands::audit::list_audit_log,
             commands::audit::clear_audit_log,
             commands::explorer::list_directory,
@@ -114,6 +120,10 @@ fn main() {
             commands::git::push_to_remote,
             commands::git::fetch_from_remote,
             commands::git::pull_from_remote,
+            commands::hacktools::list_hacktool_status,
+            commands::hacktools::launch_hacktool,
+            commands::hacktools::run_hacktool_scan,
+            commands::hacktools::install_hacktool_pip,
             commands::docker::is_docker_available,
             commands::docker::list_containers,
             commands::docker::start_container,
@@ -132,6 +142,14 @@ fn main() {
             commands::disk_usage::get_directory_sizes,
             commands::disk_usage::find_duplicate_files,
             commands::scripts::run_script,
+            commands::scripts::list_scripts,
+            commands::scripts::import_script_source,
+            commands::scripts::cancel_script_import,
+            commands::scripts::finalize_script_import,
+            commands::scripts::update_script,
+            commands::scripts::delete_script,
+            commands::scripts::get_script_icon_data_url,
+            commands::scripts::open_script_folder,
             commands::ssh::list_ssh_profiles,
             commands::ssh::add_ssh_profile,
             commands::ssh::delete_ssh_profile,
@@ -157,8 +175,11 @@ fn main() {
             commands::chat::chat_disconnect,
             commands::chat::chat_is_active,
             commands::chat::chat_broadcast_status,
+            commands::chat::fleet_request_action,
+            commands::chat::fleet_send_action_result,
             commands::baseline::run_security_baseline,
             commands::window::close_splashscreen,
+            tray::set_tray_alert_state,
             commands::panic::panic_lock_session,
             commands::panic::panic_set_network,
             commands::winget::is_winget_available,
@@ -182,6 +203,15 @@ fn main() {
             commands::dossier::investigate_process,
             commands::sentinel::sentinel_time_bounds,
             commands::sentinel::sentinel_state_at,
+            commands::database::list_db_connections,
+            commands::database::add_db_connection,
+            commands::database::delete_db_connection,
+            commands::database::db_test_connection,
+            commands::database::db_connect,
+            commands::database::db_disconnect,
+            commands::database::db_list_tables,
+            commands::database::db_list_columns,
+            commands::database::db_run_query,
         ])
         .run(tauri::generate_context!())
         .expect("error al ejecutar la aplicacion KRYPTOS");

@@ -74,7 +74,7 @@ export function AppForm({ initial, prefill, onSubmit, submitting, errorMessage }
           <button
             type="button"
             onClick={pickExe}
-            className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]"
+            className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]"
           >
             <FileSearch size={13} />
           </button>
@@ -91,7 +91,7 @@ export function AppForm({ initial, prefill, onSubmit, submitting, errorMessage }
         <button
           type="button"
           onClick={pickIcon}
-          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]"
+          className="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]"
         >
           <ImageIcon size={13} />
           {iconSourcePath ? iconSourcePath.split(/[\\/]/).pop() : "Elegir imagen..."}

@@ -49,7 +49,9 @@
     "iniciando kryptos_core...",
     "verificando integridad del sistema... OK",
     "cargando modulo sentinel...",
+    "indexando aplicaciones y scripts...",
     "estableciendo canal cifrado local...",
+    "centro de operaciones en linea...",
     "listo.",
   ];
   var logEl = document.getElementById("boot-log");
@@ -74,7 +76,7 @@
     function () {
       document.body.classList.add("fade-out");
     },
-    reduceMotion ? 400 : 3100
+    reduceMotion ? 400 : 3900
   );
 
   window.addEventListener("beforeunload", function () {

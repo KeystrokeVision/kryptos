@@ -134,7 +134,7 @@ export function HashCrackerPanel() {
                 <PlayCircle size={13} /> Iniciar
               </button>
             ) : (
-              <button onClick={cancel} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]">
+              <button onClick={cancel} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]">
                 <Square size={12} /> Cancelar
               </button>
             )}
@@ -146,7 +146,7 @@ export function HashCrackerPanel() {
           </div>
 
           {state.status === "running" && (
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+            <div className="h-1.5 overflow-hidden rounded-full bg-overlay/5">
               <div className="h-full bg-accent transition-all" style={{ width: `${Math.min(100, (state.tried / state.total) * 100)}%` }} />
             </div>
           )}

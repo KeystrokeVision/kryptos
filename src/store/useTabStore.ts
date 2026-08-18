@@ -16,6 +16,7 @@ export type ModuleId =
   | "git"
   | "docker"
   | "editor"
+  | "scripts"
   | "database"
   | "logs"
   | "settings"

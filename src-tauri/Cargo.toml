@@ -1,6 +1,6 @@
 [package]
 name = "kryptos"
-version = "0.1.0"
+version = "0.2.0"
 description = "KRYPTOS — The Ultimate System Terminal"
 authors = ["you"]
 edition = "2021"
@@ -60,6 +60,17 @@ argon2 = "0.5"
 # filesystem/asset-protocol permissions to display arbitrary local images.
 base64 = "0.22"
 
+# Extracts .zip archives when importing a portable program into Aplicaciones
+# (deflate only — that covers the vast majority of portable-app zips and
+# keeps the dependency tree lean; enclosed_name() on each entry rejects
+# zip-slip path traversal).
+zip = { version = "2", default-features = false, features = ["deflate"] }
+
+# Draws the small alert-state badge onto the tray icon (png decode only —
+# no other format support needed, this only ever reads our own bundled
+# icons/icon.png).
+image = { version = "0.25", default-features = false, features = ["png"] }
+
 # Local audit trail (who deleted what, when) — bundled compiles SQLite from
 # source, so the Windows build doesn't need a separately installed SQLite.
 rusqlite = { version = "0.32", features = ["bundled"] }
@@ -95,6 +106,17 @@ notify = "6"
 # a diferencia de captura de paquetes, esto es seguro de agregar sin
 # depender de que el usuario tenga algo mas instalado.
 goblin = "0.9"
+
+# Modulo Base de datos — clientes reales para PostgreSQL y MySQL (SQLite ya
+# esta cubierto por rusqlite, usado arriba para la base local de KRYPTOS).
+# TLS con native-tls para consistencia con el resto de la app (mismo
+# backend que reqwest y el verificador TLS de Seguridad); with-chrono/
+# with-uuid/with-serde_json habilitan conversion directa de columnas
+# DATE/TIMESTAMP, UUID y JSON/JSONB sin pasar por texto crudo.
+postgres = { version = "0.19", features = ["with-chrono-0_4", "with-serde_json-1", "with-uuid-0_8"] }
+postgres-native-tls = "0.5"
+uuid = "0.8"
+mysql = { version = "28", default-features = false, features = ["minimal", "native-tls"] }
 
 [target.'cfg(windows)'.dependencies]
 # Detects whether the current process token is actually elevated (not just

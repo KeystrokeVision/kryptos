@@ -5,6 +5,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use serde::{Deserialize, Serialize};
+use walkdir::WalkDir;
 
 const ALLOWED_ICON_EXTENSIONS: &[&str] = &["png", "jpg", "jpeg", "webp", "gif", "bmp", "ico"];
 
@@ -18,6 +19,12 @@ pub struct AppEntry {
     /// keep our own copy instead of depending on it.
     pub icon_file: Option<String>,
     pub added_at_unix: u64,
+    /// True when `exe_path` points inside our own `portable_apps/<id>/`
+    /// storage (imported via `import_portable_source` +
+    /// `finalize_portable_app`) rather than at a program installed
+    /// elsewhere. Older entries predate this field, hence the default.
+    #[serde(default)]
+    pub is_portable: bool,
 }
 
 fn unix_now() -> u64 {
@@ -29,16 +36,55 @@ fn unique_id() -> String {
     format!("app-{nanos}")
 }
 
+/// Launcher storage lives under KRYPTOS's own portable data root (next to
+/// the executable, see `commands::portable_data_root`) so it travels with
+/// the app when shared, rather than in this Windows profile's `%APPDATA%`.
 fn apps_dir() -> Result<PathBuf, String> {
-    let base = dirs::config_dir().ok_or_else(|| "No se pudo determinar el directorio de configuracion del sistema.".to_string())?;
-    let dir = base.join("kryptos");
-    fs::create_dir_all(&dir).map_err(|e| format!("No se pudo crear el directorio de configuracion: {e}"))?;
+    let dir = crate::commands::portable_data_root()?.join("apps");
+    fs::create_dir_all(&dir).map_err(|e| format!("No se pudo crear el directorio de aplicaciones: {e}"))?;
+    migrate_legacy_apps_data(&dir);
     Ok(dir)
+}
+
+/// One-time convenience migration for anyone who added apps before this
+/// storage moved from `%APPDATA%\kryptos` to the portable data root: copies
+/// just the launcher's own files (apps.json, icons, imported portable
+/// programs) into the new location, leaving the audit log and everything
+/// else that intentionally stays in the Windows profile untouched. No-ops
+/// once `dir` already has its own apps.json.
+fn migrate_legacy_apps_data(dir: &Path) {
+    if dir.join("apps.json").exists() {
+        return;
+    }
+    let Some(legacy_root) = dirs::config_dir().map(|c| c.join("kryptos")) else { return };
+    let legacy_apps_file = legacy_root.join("apps.json");
+    if !legacy_apps_file.exists() {
+        return;
+    }
+    let _ = fs::copy(&legacy_apps_file, dir.join("apps.json"));
+    let legacy_icons = legacy_root.join("app_icons");
+    if legacy_icons.is_dir() {
+        let _ = copy_dir_recursive(&legacy_icons, &dir.join("app_icons"));
+    }
+    let legacy_portable = legacy_root.join("portable_apps");
+    if legacy_portable.is_dir() {
+        let _ = copy_dir_recursive(&legacy_portable, &dir.join("portable_apps"));
+    }
 }
 
 fn icons_dir() -> Result<PathBuf, String> {
     let dir = apps_dir()?.join("app_icons");
     fs::create_dir_all(&dir).map_err(|e| format!("No se pudo crear el directorio de iconos: {e}"))?;
+    Ok(dir)
+}
+
+/// Where imported portable programs live — each gets its own `<id>/`
+/// subfolder holding a full copy of the program, so it survives the
+/// original folder/zip moving, being deleted, or living on a USB drive
+/// that gets unplugged.
+fn portable_apps_dir() -> Result<PathBuf, String> {
+    let dir = apps_dir()?.join("portable_apps");
+    fs::create_dir_all(&dir).map_err(|e| format!("No se pudo crear el directorio de programas portables: {e}"))?;
     Ok(dir)
 }
 
@@ -124,7 +170,7 @@ pub fn add_application(name: String, exe_path: String, icon_source_path: Option<
         _ => None,
     };
 
-    let entry = AppEntry { id, name, exe_path, icon_file, added_at_unix: unix_now() };
+    let entry = AppEntry { id, name, exe_path, icon_file, added_at_unix: unix_now(), is_portable: false };
 
     let mut apps = load_apps()?;
     apps.push(entry.clone());
@@ -169,17 +215,40 @@ pub fn update_application(id: String, name: String, exe_path: String, icon_sourc
     Ok(updated)
 }
 
-/// Removes an application shortcut and its stored icon copy, if any.
+/// Removes an application shortcut and its stored icon copy, if any. For a
+/// portable program, also deletes our copy of it under `portable_apps/` —
+/// unlike a regular shortcut, that copy isn't a program installed
+/// elsewhere, so nothing survives outside KRYPTOS after this.
 #[tauri::command]
 pub fn delete_application(id: String, db: tauri::State<'_, crate::db::Db>) -> Result<(), String> {
     let mut apps = load_apps()?;
     if let Some(pos) = apps.iter().position(|a| a.id == id) {
         let removed = apps.remove(pos);
         remove_icon_if_present(&removed.icon_file);
+        if removed.is_portable {
+            if let Ok(dir) = portable_apps_dir() {
+                let _ = fs::remove_dir_all(dir.join(&removed.id));
+            }
+        }
         save_apps(&apps)?;
         crate::commands::audit::record_audit_event(&db, "delete_application", &removed.name, "ok", None);
     }
     Ok(())
+}
+
+/// Opens the folder containing an application's executable in the system
+/// file manager — mainly useful for a portable program to see what got
+/// copied into KRYPTOS's own storage.
+#[tauri::command]
+pub fn open_application_folder(id: String) -> Result<(), String> {
+    let apps = load_apps()?;
+    let app = apps.iter().find(|a| a.id == id).ok_or_else(|| "Aplicacion no encontrada.".to_string())?;
+    if is_url(&app.exe_path) {
+        return Err("Los enlaces web no tienen una carpeta local.".into());
+    }
+    let exe = Path::new(&app.exe_path);
+    let folder = exe.parent().ok_or_else(|| "No se pudo determinar la carpeta.".to_string())?;
+    open::that(folder).map_err(|e| format!("No se pudo abrir la carpeta: {e}"))
 }
 
 /// Reads a stored icon and returns it as a `data:` URL so the frontend can
@@ -390,4 +459,236 @@ fn list_installed_applications_impl() -> Result<Vec<DiscoveredApp>, String> {
 #[tauri::command]
 pub fn list_installed_applications() -> Result<Vec<DiscoveredApp>, String> {
     list_installed_applications_impl()
+}
+
+// ---------------------------------------------------------------------
+// Import a portable program (an unzipped folder, or a .zip) so it lives
+// inside KRYPTOS's own storage instead of just pointing at wherever the
+// user happened to leave it — a USB stick, Downloads, a folder that gets
+// cleaned up later, etc. Two-step flow:
+//   1. import_portable_source copies/extracts everything into a fresh
+//      portable_apps/<id>/ folder and reports every .exe found inside, so
+//      the frontend can ask the user which one is the program's main exe.
+//   2. finalize_portable_app records the chosen exe as a normal AppEntry.
+// If the user cancels partway through, cancel_portable_import removes the
+// copy so nothing orphaned is left behind.
+// ---------------------------------------------------------------------
+
+fn unique_portable_id() -> String {
+    let nanos = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+    format!("papp-{nanos}")
+}
+
+/// Rejects anything that isn't a single bare path component (no `..`, no
+/// separators) — every id here was generated by us, so a mismatch means
+/// tampering rather than a legitimate identifier.
+pub(crate) fn sanitize_id(id: &str) -> Result<String, String> {
+    let name = Path::new(id).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+    if name.is_empty() || name != id {
+        return Err("Identificador invalido.".into());
+    }
+    Ok(name)
+}
+
+pub(crate) fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), String> {
+    fs::create_dir_all(dst).map_err(|e| format!("No se pudo crear '{}': {e}", dst.display()))?;
+    for entry in fs::read_dir(src).map_err(|e| format!("No se pudo leer '{}': {e}", src.display()))? {
+        let entry = entry.map_err(|e| format!("Error leyendo el directorio de origen: {e}"))?;
+        let file_type = entry.file_type().map_err(|e| format!("Error leyendo '{}': {e}", entry.path().display()))?;
+        let dest_path = dst.join(entry.file_name());
+        if file_type.is_dir() {
+            copy_dir_recursive(&entry.path(), &dest_path)?;
+        } else if file_type.is_file() {
+            fs::copy(entry.path(), &dest_path).map_err(|e| format!("No se pudo copiar '{}': {e}", entry.path().display()))?;
+        }
+        // Symlinks are skipped — portable-app folders essentially never use them,
+        // and following them could copy something well outside the source folder.
+    }
+    Ok(())
+}
+
+/// Extracts a .zip into `dest`. `enclosed_name()` returns `None` for any
+/// entry that would escape `dest` via `..` or an absolute path ("zip slip"),
+/// so those entries are silently skipped instead of written outside it.
+pub(crate) fn extract_zip(zip_path: &Path, dest: &Path) -> Result<(), String> {
+    let file = fs::File::open(zip_path).map_err(|e| format!("No se pudo abrir el archivo zip: {e}"))?;
+    let mut archive = zip::ZipArchive::new(file).map_err(|e| format!("El archivo zip esta danado o no es valido: {e}"))?;
+    fs::create_dir_all(dest).map_err(|e| format!("No se pudo crear '{}': {e}", dest.display()))?;
+
+    for i in 0..archive.len() {
+        let mut entry = archive.by_index(i).map_err(|e| format!("Error leyendo el zip: {e}"))?;
+        let Some(rel_path) = entry.enclosed_name() else { continue };
+        let out_path = dest.join(rel_path);
+        if entry.is_dir() {
+            fs::create_dir_all(&out_path).map_err(|e| format!("No se pudo crear '{}': {e}", out_path.display()))?;
+        } else {
+            if let Some(parent) = out_path.parent() {
+                fs::create_dir_all(parent).map_err(|e| format!("No se pudo crear '{}': {e}", parent.display()))?;
+            }
+            let mut out_file = fs::File::create(&out_path).map_err(|e| format!("No se pudo escribir '{}': {e}", out_path.display()))?;
+            std::io::copy(&mut entry, &mut out_file).map_err(|e| format!("No se pudo extraer '{}': {e}", out_path.display()))?;
+        }
+    }
+    Ok(())
+}
+
+/// Recursively lists every `.exe` under `root`, as paths relative to it
+/// (forward-slash separated, so the frontend can display/send them without
+/// worrying about escaping backslashes).
+fn find_exe_candidates(root: &Path) -> Vec<String> {
+    let mut results: Vec<String> = WalkDir::new(root)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file())
+        .filter(|e| e.path().extension().and_then(|ext| ext.to_str()).is_some_and(|ext| ext.eq_ignore_ascii_case("exe")))
+        .filter_map(|e| e.path().strip_prefix(root).ok().map(|p| p.to_string_lossy().replace('\\', "/")))
+        .collect();
+    results.sort();
+    results
+}
+
+fn looks_like_uninstaller_or_setup(file_stem_lower: &str) -> bool {
+    file_stem_lower.starts_with("unins") || file_stem_lower.starts_with("uninstall") || file_stem_lower.starts_with("setup")
+}
+
+/// Best-effort guess at which discovered `.exe` is the program itself, not
+/// an uninstaller/installer/helper — prefers exes at the shallowest folder
+/// depth whose name resembles the source folder/zip's name. The user always
+/// gets to confirm or override this before it's saved.
+fn guess_main_exe(source_name: &str, candidates: &[String]) -> Option<String> {
+    let source_lower = source_name.to_lowercase();
+    candidates
+        .iter()
+        .filter(|c| {
+            let stem = c.rsplit('/').next().unwrap_or(c).trim_end_matches(".exe").to_lowercase();
+            !looks_like_uninstaller_or_setup(&stem)
+        })
+        .max_by_key(|c| {
+            let depth = c.matches('/').count();
+            let stem = c.rsplit('/').next().unwrap_or(c).trim_end_matches(".exe").to_lowercase();
+            let name_score = if stem == source_lower {
+                100
+            } else if !source_lower.is_empty() && (source_lower.contains(&stem) || stem.contains(&source_lower)) {
+                40
+            } else {
+                0
+            };
+            // Shallower wins on ties: depth 0 outranks depth 1, etc.
+            name_score - (depth as i32)
+        })
+        .cloned()
+}
+
+#[derive(Serialize)]
+pub struct PortableImportResult {
+    pub import_id: String,
+    pub candidates: Vec<String>,
+    pub guessed_exe: Option<String>,
+}
+
+/// Step 1 of importing a portable program: copies a folder (or extracts a
+/// .zip) into our own `portable_apps/<id>/` storage and reports every .exe
+/// found inside. Nothing is added to the launcher yet — call
+/// `finalize_portable_app` with the chosen exe to complete it, or
+/// `cancel_portable_import` to discard the copy.
+#[tauri::command]
+pub fn import_portable_source(source_path: String) -> Result<PortableImportResult, String> {
+    let source_path = source_path.trim().to_string();
+    if source_path.is_empty() {
+        return Err("Elige una carpeta de programa portable o un archivo .zip.".into());
+    }
+    let src = Path::new(&source_path);
+    if !src.exists() {
+        return Err(format!("No se encontro '{source_path}'."));
+    }
+
+    let id = unique_portable_id();
+    let dest = portable_apps_dir()?.join(&id);
+
+    let is_zip = src.is_file() && src.extension().and_then(|e| e.to_str()).is_some_and(|e| e.eq_ignore_ascii_case("zip"));
+    let import_result = if is_zip {
+        extract_zip(src, &dest)
+    } else if src.is_dir() {
+        copy_dir_recursive(src, &dest)
+    } else {
+        Err("Elige una carpeta de programa portable o un archivo .zip.".into())
+    };
+
+    if let Err(e) = import_result {
+        let _ = fs::remove_dir_all(&dest);
+        return Err(e);
+    }
+
+    let candidates = find_exe_candidates(&dest);
+    if candidates.is_empty() {
+        let _ = fs::remove_dir_all(&dest);
+        return Err("No se encontro ningun archivo .exe ahi dentro. Revisa que sea la carpeta o el zip correcto del programa portable.".into());
+    }
+
+    let source_name = src.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_default();
+    let guessed_exe = guess_main_exe(&source_name, &candidates);
+
+    Ok(PortableImportResult { import_id: id, candidates, guessed_exe })
+}
+
+/// Discards an in-progress import (the user closed the dialog before
+/// choosing the main exe, or picked the wrong folder) by deleting the copy
+/// `import_portable_source` made.
+#[tauri::command]
+pub fn cancel_portable_import(import_id: String) -> Result<(), String> {
+    let safe_id = sanitize_id(&import_id)?;
+    let dir = portable_apps_dir()?.join(safe_id);
+    if dir.exists() {
+        fs::remove_dir_all(&dir).map_err(|e| format!("No se pudo limpiar los archivos temporales: {e}"))?;
+    }
+    Ok(())
+}
+
+/// Step 2: records the chosen exe from a previously-imported portable
+/// program as a real launcher entry. `exe_relative_path` must resolve to a
+/// file inside that import's own folder — anything else is rejected.
+#[tauri::command]
+pub fn finalize_portable_app(
+    import_id: String,
+    name: String,
+    exe_relative_path: String,
+    icon_source_path: Option<String>,
+) -> Result<AppEntry, String> {
+    let name = name.trim().to_string();
+    if name.is_empty() {
+        return Err("Ponle un nombre al programa.".into());
+    }
+
+    let safe_id = sanitize_id(&import_id)?;
+    let root = portable_apps_dir()?.join(&safe_id);
+    if !root.exists() {
+        return Err("Esa importacion ya no esta disponible; vuelve a importar la carpeta o el zip.".into());
+    }
+    let root_canon = fs::canonicalize(&root).map_err(|e| format!("No se pudo resolver la carpeta importada: {e}"))?;
+
+    let candidate = root.join(exe_relative_path.trim().replace('/', std::path::MAIN_SEPARATOR_STR));
+    let candidate_canon = fs::canonicalize(&candidate)
+        .map_err(|_| "El ejecutable elegido ya no existe dentro de lo importado.".to_string())?;
+    if !candidate_canon.starts_with(&root_canon) || !candidate_canon.is_file() {
+        return Err("Elige un ejecutable valido dentro de lo importado.".into());
+    }
+
+    let icon_file = match icon_source_path {
+        Some(src) if !src.trim().is_empty() => Some(copy_icon(&safe_id, src.trim())?),
+        _ => None,
+    };
+
+    let entry = AppEntry {
+        id: safe_id,
+        name,
+        exe_path: candidate_canon.to_string_lossy().to_string(),
+        icon_file,
+        added_at_unix: unix_now(),
+        is_portable: true,
+    };
+
+    let mut apps = load_apps()?;
+    apps.push(entry.clone());
+    save_apps(&apps)?;
+    Ok(entry)
 }

@@ -83,7 +83,7 @@ export default function Docker() {
         <p className="text-xs">No se pudo conectar a Docker. ¿Esta Docker Desktop o el daemon corriendo?</p>
         <button
           onClick={() => available.refetch()}
-          className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]"
+          className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]"
         >
           <RefreshCw size={13} className={available.isFetching ? "animate-spin" : ""} /> Reintentar
         </button>
@@ -96,10 +96,10 @@ export default function Docker() {
       <div className="flex h-11 shrink-0 items-center gap-2 border-b border-borderMuted bg-panelAlt px-3">
         <Container size={13} className="text-accent-bright" />
         <div className="flex gap-1">
-          <button onClick={() => setTab("containers")} className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", tab === "containers" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}>
+          <button onClick={() => setTab("containers")} className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", tab === "containers" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}>
             <Box size={12} /> Contenedores
           </button>
-          <button onClick={() => setTab("images")} className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", tab === "images" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}>
+          <button onClick={() => setTab("images")} className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", tab === "images" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}>
             <Layers size={12} /> Imagenes
           </button>
         </div>
@@ -113,7 +113,7 @@ export default function Docker() {
 
         <button
           onClick={() => (tab === "containers" ? containers.refetch() : images.refetch())}
-          className="ml-auto flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+          className="ml-auto flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
           aria-label="Actualizar"
         >
           <RefreshCw size={13} className={(tab === "containers" ? containers.isFetching : images.isFetching) ? "animate-spin" : ""} />
@@ -141,7 +141,7 @@ export default function Docker() {
             </thead>
             <tbody>
               {(containers.data ?? []).map((c) => (
-                <tr key={c.id} className="group border-t border-borderMuted hover:bg-white/[0.03]">
+                <tr key={c.id} className="group border-t border-borderMuted hover:bg-overlay/[0.03]">
                   <td className="px-3 py-1.5 text-text">{c.name}</td>
                   <td className="px-3 py-1.5 truncate font-mono text-text-dim">{c.image}</td>
                   <td className={cn("px-3 py-1.5 font-mono", stateTone(c.state))}>{c.status}</td>
@@ -188,7 +188,7 @@ export default function Docker() {
             </thead>
             <tbody>
               {(images.data ?? []).map((img) => (
-                <tr key={img.id} className="group border-t border-borderMuted hover:bg-white/[0.03]">
+                <tr key={img.id} className="group border-t border-borderMuted hover:bg-overlay/[0.03]">
                   <td className="px-3 py-1.5 text-text">{img.repo_tags.length > 0 ? img.repo_tags.join(", ") : <span className="text-text-dim">&lt;sin etiqueta&gt;</span>}</td>
                   <td className="px-3 py-1.5 font-mono text-text-dim">{img.id}</td>
                   <td className="px-3 py-1.5 font-mono text-text-dim">{formatBytes(img.size_bytes)}</td>

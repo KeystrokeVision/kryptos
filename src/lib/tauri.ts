@@ -12,7 +12,7 @@ import type {
   SecurityLogResult,
   FirewallRule,
 } from "@/types/security";
-import type { AppEntry, DiscoveredApp } from "@/types/apps";
+import type { AppEntry, DiscoveredApp, PortableImportResult } from "@/types/apps";
 import type { WingetPackage } from "@/types/winget";
 import type { AuditEntry } from "@/types/audit";
 import type { ScheduledTaskInfo } from "@/types/persistence";
@@ -34,6 +34,9 @@ import type { CryptoResult } from "@/types/crypto";
 import type { SentinelAlert, SentinelEvent, SentinelStatus, ScanOutcome, SentinelExport, ReconstructedState, SentinelTimeBounds } from "@/types/sentinel";
 import type { HoneytokenInfo } from "@/types/honeytoken";
 import type { ProcessDossier } from "@/types/dossier";
+import type { DbConnectionProfile, DbConnectParams, DbTableInfo, DbColumnInfo, DbQueryResult } from "@/types/database";
+import type { ScriptEntry, ScriptRunResult, ScriptImportResult } from "@/types/scripts";
+import type { ExternalToolStatus, HacktoolRunResult } from "@/types/hacktools";
 
 export interface CommandOutput {
   success: boolean;
@@ -85,6 +88,12 @@ export const api = {
   checkTlsCertificate: (host: string, port?: number) => invoke<TlsCertificateInfo>("check_tls_certificate", { host, port }),
   searchCve: (query: string) => invoke<CveSearchResult>("search_cve", { query }),
   runAdvancedScan: (target: string, scanType: string) => invoke<SecurityCommandOutput>("run_advanced_scan", { target, scanType }),
+
+  // Herramientas externas de Modo Hacker — ver src-tauri/src/commands/hacktools.rs
+  listHacktoolStatus: () => invoke<ExternalToolStatus[]>("list_hacktool_status"),
+  launchHacktool: (id: string) => invoke<void>("launch_hacktool", { id }),
+  runHacktoolScan: (id: string, target?: string) => invoke<HacktoolRunResult>("run_hacktool_scan", { id, target }),
+  installHacktoolPip: (id: string) => invoke<string>("install_hacktool_pip", { id }),
   readSecurityEvents: (preset: string, maxEvents?: number) =>
     invoke<SecurityLogResult>("read_security_events", { preset, maxEvents }),
   listFirewallRules: () => invoke<FirewallRule[]>("list_firewall_rules"),
@@ -105,6 +114,15 @@ export const api = {
   deleteApplication: (id: string) => invoke<void>("delete_application", { id }),
   getAppIconDataUrl: (iconFile: string) => invoke<string>("get_app_icon_data_url", { iconFile }),
   launchApplication: (id: string) => invoke<void>("launch_application", { id }),
+  openApplicationFolder: (id: string) => invoke<void>("open_application_folder", { id }),
+
+  // Programas portables — importa una carpeta o un .zip completo dentro del
+  // almacenamiento propio de KRYPTOS. Ver import_portable_source /
+  // finalize_portable_app en src-tauri/src/commands/apps.rs.
+  importPortableSource: (sourcePath: string) => invoke<PortableImportResult>("import_portable_source", { sourcePath }),
+  cancelPortableImport: (importId: string) => invoke<void>("cancel_portable_import", { importId }),
+  finalizePortableApp: (importId: string, name: string, exeRelativePath: string, iconSourcePath?: string) =>
+    invoke<AppEntry>("finalize_portable_app", { importId, name, exeRelativePath, iconSourcePath }),
 
   // Historial de auditoria — ver src-tauri/src/commands/audit.rs
   listAuditLog: (limit?: number) => invoke<AuditEntry[]>("list_audit_log", { limit }),
@@ -125,6 +143,9 @@ export const api = {
   chatDisconnect: () => invoke<void>("chat_disconnect"),
   chatIsActive: () => invoke<boolean>("chat_is_active"),
   chatBroadcastStatus: (statusJson: string) => invoke<void>("chat_broadcast_status", { statusJson }),
+  fleetRequestAction: (targetNick: string, action: string, requestId: string) => invoke<void>("fleet_request_action", { targetNick, action, requestId }),
+  fleetSendActionResult: (requestId: string, requesterNick: string, ok: boolean, message: string) =>
+    invoke<void>("fleet_send_action_result", { requestId, requesterNick, ok, message }),
   // Sentinel (vigilancia continua) — ver src-tauri/src/commands/sentinel.rs.
   // Los hallazgos llegan tambien en vivo por los eventos "sentinel://event",
   // "sentinel://alert" y "sentinel://tick".
@@ -177,6 +198,9 @@ export const api = {
   // Permisos elevados — ver src-tauri/src/commands/elevation.rs
   isElevated: () => invoke<boolean>("is_elevated"),
   relaunchElevated: () => invoke<void>("relaunch_elevated"),
+
+  // Icono de bandeja del sistema — ver src-tauri/src/tray.rs
+  setTrayAlertState: (alert: boolean) => invoke<void>("set_tray_alert_state", { alert }),
 
   // Servicios — ver src-tauri/src/commands/services.rs
   listServices: () => invoke<ServiceInfo[]>("list_services"),
@@ -256,7 +280,27 @@ export const api = {
   findDuplicateFiles: (path: string) => invoke<DuplicateScanResult>("find_duplicate_files", { path }),
 
   // Ejecutar scripts — ver src-tauri/src/commands/scripts.rs
-  runScript: (path: string) => invoke<{ success: boolean; output: string }>("run_script", { path }),
+  runScript: (path: string) => invoke<ScriptRunResult>("run_script", { path }),
+
+  // Biblioteca de scripts — mismo flujo de importar (archivo/carpeta/zip)
+  // que los programas portables de Aplicaciones: se copian dentro del
+  // almacenamiento propio de KRYPTOS. Es una vitrina para ver el codigo
+  // (o el link a su repositorio), no un ejecutor — no hay comando "correr".
+  listScripts: () => invoke<ScriptEntry[]>("list_scripts"),
+  importScriptSource: (sourcePath: string) => invoke<ScriptImportResult>("import_script_source", { sourcePath }),
+  cancelScriptImport: (importId: string) => invoke<void>("cancel_script_import", { importId }),
+  finalizeScriptImport: (
+    importId: string,
+    name: string,
+    scriptRelativePath: string,
+    repoUrl?: string,
+    iconSourcePath?: string
+  ) => invoke<ScriptEntry>("finalize_script_import", { importId, name, scriptRelativePath, repoUrl, iconSourcePath }),
+  updateScript: (id: string, name: string, repoUrl?: string, iconSourcePath?: string) =>
+    invoke<ScriptEntry>("update_script", { id, name, repoUrl, iconSourcePath }),
+  deleteScript: (id: string) => invoke<void>("delete_script", { id }),
+  getScriptIconDataUrl: (iconFile: string) => invoke<string>("get_script_icon_data_url", { iconFile }),
+  openScriptFolder: (id: string) => invoke<void>("open_script_folder", { id }),
 
   // SSH — ver src-tauri/src/commands/ssh.rs
   listSshProfiles: () => invoke<SshProfile[]>("list_ssh_profiles"),
@@ -277,4 +321,34 @@ export const api = {
     invoke<void>("sftp_download_file", { params, remotePath, localPath }),
   sftpUploadFile: (params: SshConnectParams, localPath: string, remotePath: string) =>
     invoke<void>("sftp_upload_file", { params, localPath, remotePath }),
+
+  // Base de datos — ver src-tauri/src/commands/database.rs
+  listDbConnections: () => invoke<DbConnectionProfile[]>("list_db_connections"),
+  addDbConnection: (
+    label: string,
+    engine: string,
+    host: string | undefined,
+    port: number | undefined,
+    username: string | undefined,
+    databaseName: string | undefined,
+    filePath: string | undefined,
+    useTls: boolean
+  ) =>
+    invoke<DbConnectionProfile>("add_db_connection", {
+      label,
+      engine,
+      host,
+      port,
+      username,
+      databaseName,
+      filePath,
+      useTls,
+    }),
+  deleteDbConnection: (id: number) => invoke<void>("delete_db_connection", { id }),
+  dbTestConnection: (params: DbConnectParams) => invoke<string>("db_test_connection", { params }),
+  dbConnect: (sessionId: string, params: DbConnectParams) => invoke<string>("db_connect", { sessionId, params }),
+  dbDisconnect: (sessionId: string) => invoke<void>("db_disconnect", { sessionId }),
+  dbListTables: (sessionId: string) => invoke<DbTableInfo[]>("db_list_tables", { sessionId }),
+  dbListColumns: (sessionId: string, table: string) => invoke<DbColumnInfo[]>("db_list_columns", { sessionId, table }),
+  dbRunQuery: (sessionId: string, sql: string) => invoke<DbQueryResult>("db_run_query", { sessionId, sql }),
 };

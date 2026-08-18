@@ -39,7 +39,7 @@ export function SecurityLogsPanel() {
                 }}
                 className={cn(
                   "rounded-md border px-3 py-1.5 text-[11px] transition-colors",
-                  preset === p.id ? "border-accent/60 bg-accent/10 text-text" : "border-border text-text-muted hover:bg-white/[0.03]"
+                  preset === p.id ? "border-accent/60 bg-accent/10 text-text" : "border-border text-text-muted hover:bg-overlay/[0.03]"
                 )}
               >
                 {p.label}
@@ -47,7 +47,7 @@ export function SecurityLogsPanel() {
             ))}
             <button
               onClick={() => mutation.mutate(preset)}
-              className="ml-auto flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] text-text-muted hover:bg-white/[0.04]"
+              className="ml-auto flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
             >
               <RefreshCw size={11} className={mutation.isPending ? "animate-spin" : ""} />
               Actualizar

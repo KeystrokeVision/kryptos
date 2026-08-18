@@ -37,7 +37,7 @@ export function DiskUsagePanel({ initialPath }: DiskUsagePanelProps) {
         <button
           onClick={() => up && setPath(up)}
           disabled={!up}
-          className="flex h-6 w-6 items-center justify-center rounded text-text-dim hover:bg-white/[0.06] hover:text-text disabled:opacity-30"
+          className="flex h-6 w-6 items-center justify-center rounded text-text-dim hover:bg-overlay/[0.06] hover:text-text disabled:opacity-30"
           aria-label="Subir un nivel"
         >
           <ArrowUp size={12} />
@@ -66,7 +66,7 @@ export function DiskUsagePanel({ initialPath }: DiskUsagePanelProps) {
               disabled={!entry.is_dir}
               className={cn(
                 "w-full rounded-md border border-border bg-base p-2 text-left",
-                entry.is_dir ? "hover:border-accent/50 hover:bg-white/[0.03]" : "cursor-default opacity-80"
+                entry.is_dir ? "hover:border-accent/50 hover:bg-overlay/[0.03]" : "cursor-default opacity-80"
               )}
             >
               <div className="mb-1 flex items-center gap-2 text-[11px]">
@@ -75,7 +75,7 @@ export function DiskUsagePanel({ initialPath }: DiskUsagePanelProps) {
                 {entry.truncated && <span className="text-[9px] text-warn">incompleto</span>}
                 <span className="shrink-0 font-mono text-text-muted">{formatBytes(entry.size_bytes)}</span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+              <div className="h-1.5 overflow-hidden rounded-full bg-overlay/5">
                 <div
                   className={cn("h-full", BAR_COLORS[i % BAR_COLORS.length])}
                   style={{ width: `${Math.max(1, (entry.size_bytes / maxSize) * 100)}%` }}

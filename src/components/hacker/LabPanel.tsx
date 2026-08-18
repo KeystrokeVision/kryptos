@@ -24,6 +24,7 @@ const LAB_IMAGES: LabImage[] = [
   { id: "dvwa", label: "DVWA", description: "Damn Vulnerable Web Application — clasico de practica de inyeccion SQL, XSS, etc.", image: "vulnerables/web-dvwa", containerPort: 80, hostPort: 8081 },
   { id: "webgoat", label: "OWASP WebGoat", description: "Lecciones guiadas de OWASP sobre vulnerabilidades web comunes.", image: "webgoat/webgoat", containerPort: 8080, hostPort: 8082 },
   { id: "bwapp", label: "bWAPP", description: "Mas de 100 vulnerabilidades distintas para practicar, una app a la vez.", image: "raesene/bwapp", containerPort: 80, hostPort: 8083 },
+  { id: "metasploitable", label: "Metasploitable 2", description: "VM vulnerable clasica de Rapid7 — muchos mas servicios ademas del web (SSH, FTP, Samba...); escanealos con la pestana NMAP.", image: "citizenstig/metasploitable2", containerPort: 80, hostPort: 8085 },
 ];
 
 type LabStatus = "idle" | "pulling" | "starting" | "running" | "error";
@@ -127,7 +128,7 @@ export function LabPanel() {
         </p>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
         {LAB_IMAGES.map((item) => {
           const state = states[item.id] ?? { status: "idle" as LabStatus };
           return (
@@ -164,7 +165,7 @@ export function LabPanel() {
                     </a>
                     <button
                       onClick={() => stop(item)}
-                      className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]"
+                      className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]"
                     >
                       <Square size={12} /> Detener y eliminar
                     </button>
@@ -174,7 +175,7 @@ export function LabPanel() {
                 {state.status === "error" && (
                   <div className="space-y-2">
                     <p className={cn("rounded-md border border-accent/40 bg-accent/10 px-2.5 py-1.5 text-[11px] text-accent-bright")}>{state.message}</p>
-                    <button onClick={() => launch(item)} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]">
+                    <button onClick={() => launch(item)} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]">
                       Reintentar
                     </button>
                   </div>

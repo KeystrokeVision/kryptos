@@ -19,7 +19,7 @@ function CopyRow({ entry }: { entry: CheatsheetEntry }) {
             setTimeout(() => setCopied(false), 1100);
           });
         }}
-        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
         aria-label="Copiar comando"
       >
         {copied ? <Check size={12} className="text-ok" /> : <Copy size={12} />}
@@ -64,7 +64,7 @@ export function CheatsheetPanel() {
           <div className="flex flex-wrap gap-1.5">
             <button
               onClick={() => setCategory("todas")}
-              className={cn("rounded-full px-2.5 py-1 text-[11px]", category === "todas" ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]")}
+              className={cn("rounded-full px-2.5 py-1 text-[11px]", category === "todas" ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]")}
             >
               Todas
             </button>
@@ -72,7 +72,7 @@ export function CheatsheetPanel() {
               <button
                 key={c}
                 onClick={() => setCategory(c)}
-                className={cn("rounded-full px-2.5 py-1 text-[11px]", category === c ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]")}
+                className={cn("rounded-full px-2.5 py-1 text-[11px]", category === c ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]")}
               >
                 {CHEATSHEET_CATEGORIES[c]}
               </button>

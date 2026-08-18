@@ -68,7 +68,7 @@ export function TimeMachinePanel() {
           disabled={!hasRange}
           className={cn(
             "flex h-7 shrink-0 items-center gap-1.5 rounded-md border px-2.5 text-[11px] disabled:opacity-40",
-            compareMode ? "border-accent bg-accent/10 text-accent-bright" : "border-border text-text-muted hover:bg-white/[0.04]"
+            compareMode ? "border-accent bg-accent/10 text-accent-bright" : "border-border text-text-muted hover:bg-overlay/[0.04]"
           )}
         >
           <GitCompare size={12} /> Comparar
@@ -100,7 +100,7 @@ export function TimeMachinePanel() {
           </div>
 
           {state.data && (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
               <ReconstructedList icon={Network} title="Puertos en escucha" items={state.data.ports} empty="Ninguno en este momento." />
               <ReconstructedList icon={CalendarClock} title="Arranque automatico" items={state.data.persistence} empty="Ninguno registrado aun." />
               <ReconstructedList icon={ShieldCheck} title="Estado de defensas" items={state.data.baseline} empty="Sin cambios registrados." />
@@ -130,7 +130,7 @@ function CompareView({ earliest, latest }: { earliest: number; latest: number })
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3">
         <TimeSlider label="Instante A" value={a} min={earliest} max={latest} onChange={setA} />
         <TimeSlider label="Instante B" value={b} min={earliest} max={latest} onChange={setB} />
       </div>
@@ -151,7 +151,7 @@ function CompareView({ earliest, latest }: { earliest: number; latest: number })
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
             <DiffList icon={Network} title="Puertos" itemsA={stateA.data.ports} itemsB={stateB.data.ports} />
             <DiffList icon={CalendarClock} title="Arranque automatico" itemsA={stateA.data.persistence} itemsB={stateB.data.persistence} />
             <DiffList icon={ShieldCheck} title="Defensas" itemsA={stateA.data.baseline} itemsB={stateB.data.baseline} />

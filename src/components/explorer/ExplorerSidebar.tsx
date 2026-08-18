@@ -53,7 +53,7 @@ export function ExplorerSidebar({ currentPath, onNavigate, onDropInto }: Explore
               key={fav.id}
               className={cn(
                 "group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] cursor-pointer",
-                fav.path === currentPath ? "bg-white/[0.06] text-text" : "text-text-muted hover:bg-white/[0.03]",
+                fav.path === currentPath ? "bg-overlay/[0.06] text-text" : "text-text-muted hover:bg-overlay/[0.03]",
                 dragOverPath === fav.path && "bg-accent/25 text-text outline outline-1 outline-accent-bright"
               )}
               onClick={() => onNavigate(fav.path)}
@@ -88,7 +88,7 @@ export function ExplorerSidebar({ currentPath, onNavigate, onDropInto }: Explore
                 {...dropHandlers(drive.path)}
                 className={cn(
                   "w-full rounded-md px-2 py-1.5 text-left text-[11px]",
-                  drive.path === currentPath ? "bg-white/[0.06] text-text" : "text-text-muted hover:bg-white/[0.03]",
+                  drive.path === currentPath ? "bg-overlay/[0.06] text-text" : "text-text-muted hover:bg-overlay/[0.03]",
                   dragOverPath === drive.path && "bg-accent/25 text-text outline outline-1 outline-accent-bright"
                 )}
               >
@@ -98,7 +98,7 @@ export function ExplorerSidebar({ currentPath, onNavigate, onDropInto }: Explore
                 </div>
                 {drive.total_bytes > 0 && (
                   <>
-                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5">
+                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-overlay/5">
                       <div className="h-full bg-accent" style={{ width: `${Math.min(100, used * 100)}%` }} />
                     </div>
                     <p className="mt-0.5 text-[9px] text-text-dim">

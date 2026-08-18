@@ -72,7 +72,7 @@ export function FileIntegrityPanel() {
   const drift = compareMutation.data;
 
   return (
-    <div className="grid h-full grid-cols-1 gap-4 overflow-y-auto p-5 xl:grid-cols-2">
+    <div className="grid h-full grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4 overflow-y-auto p-5">
       <Card title="Escanear y crear linea base">
         <div className="space-y-3">
           <p className="text-xs text-text-dim">
@@ -88,13 +88,13 @@ export function FileIntegrityPanel() {
             />
             <button
               onClick={() => pickPath(true)}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]"
+              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]"
             >
               <FolderOpen size={13} /> Carpeta
             </button>
             <button
               onClick={() => pickPath(false)}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]"
+              className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]"
             >
               <FileSearch size={13} /> Archivo
             </button>
@@ -135,7 +135,7 @@ export function FileIntegrityPanel() {
                 <button
                   onClick={() => saveMutation.mutate()}
                   disabled={saveMutation.isPending}
-                  className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04] disabled:opacity-40"
+                  className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04] disabled:opacity-40"
                 >
                   <Save size={13} /> Guardar linea base
                 </button>
@@ -164,7 +164,7 @@ export function FileIntegrityPanel() {
                 <div className="flex shrink-0 gap-1.5">
                   <button
                     onClick={() => compareMutation.mutate(b.name)}
-                    className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[10px] text-text-muted hover:bg-white/[0.04]"
+                    className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[10px] text-text-muted hover:bg-overlay/[0.04]"
                   >
                     <RefreshCw size={11} className={compareMutation.isPending && activeBaseline === b.name ? "animate-spin" : ""} />
                     Comparar

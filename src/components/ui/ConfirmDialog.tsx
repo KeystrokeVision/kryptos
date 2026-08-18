@@ -28,13 +28,13 @@ export function ConfirmDialog({ title, message, confirmLabel = "Confirmar", canc
       <div className="mt-4 flex justify-end gap-2">
         <button
           onClick={onCancel}
-          className="h-8 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]"
+          className="h-8 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]"
         >
           {cancelLabel}
         </button>
         <button
           onClick={onConfirm}
-          className={`h-8 rounded-md px-3 text-xs font-medium text-white ${danger ? "bg-accent hover:bg-accent-bright" : "bg-white/10 hover:bg-white/20"}`}
+          className={`h-8 rounded-md px-3 text-xs font-medium text-white ${danger ? "bg-accent hover:bg-accent-bright" : "bg-overlay/10 hover:bg-overlay/20"}`}
         >
           {confirmLabel}
         </button>

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Package, Play, Pencil, Trash2 } from "lucide-react";
+import { Package, Play, Pencil, Trash2, FolderOpen, HardDrive } from "lucide-react";
 import { api } from "@/lib/tauri";
 import type { AppEntry } from "@/types/apps";
 
@@ -21,7 +21,25 @@ export function AppTile({ app, onLaunch, onEdit, onDelete, launching }: AppTileP
 
   return (
     <div className="group relative flex flex-col items-center rounded-lg border border-border bg-panel p-4 transition-colors hover:border-accent/40">
+      {app.is_portable && (
+        <span
+          title="Guardado dentro de KRYPTOS"
+          className="absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-accent-bright"
+        >
+          <HardDrive size={10} />
+        </span>
+      )}
+
       <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        {app.is_portable && (
+          <button
+            onClick={() => api.openApplicationFolder(app.id)}
+            aria-label={`Abrir carpeta de ${app.name}`}
+            className="flex h-6 w-6 items-center justify-center rounded-md border border-border bg-base text-text-dim hover:text-text"
+          >
+            <FolderOpen size={11} />
+          </button>
+        )}
         <button
           onClick={onEdit}
           aria-label={`Editar ${app.name}`}

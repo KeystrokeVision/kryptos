@@ -1,16 +1,31 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listen } from "@tauri-apps/api/event";
-import { Radar, ShieldAlert, Network as NetworkIcon, CalendarClock, Fish, Activity, Server, Info } from "lucide-react";
+import { Radar, ShieldAlert, Network as NetworkIcon, CalendarClock, Fish, Activity, Server, Info, WifiOff, Loader2, Check, X, Clock } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Gauge } from "@/components/ui/Gauge";
 import { NetworkGraph } from "@/components/network/NetworkGraph";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { api } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
 import { useFleetStore } from "@/store/useFleetStore";
+import { FLEET_ACTIONS } from "@/components/layout/FleetActionListener";
 import type { SentinelEvent, SentinelAlert } from "@/types/sentinel";
+import type { ChatMessage, FleetActionResultPayload } from "@/types/chat";
 
 const SEVERITY_TONE: Record<string, string> = { critica: "text-accent-bright", alta: "text-warn", media: "text-text-muted", baja: "text-text-dim" };
+
+const REQUEST_TIMEOUT_MS = 25_000;
+
+type OutgoingStatus = "pending" | "ok" | "denied" | "error" | "timeout";
+
+interface OutgoingRequest {
+  requestId: string;
+  targetNick: string;
+  action: string;
+  status: OutgoingStatus;
+  message?: string;
+}
 
 /**
  * Centro de Operaciones — todo lo que Sentinel sabe del equipo, en una
@@ -21,6 +36,9 @@ const SEVERITY_TONE: Record<string, string> = { critica: "text-accent-bright", a
  */
 export default function OperationsCenter() {
   const [feed, setFeed] = useState<Array<{ id: string; time: number; text: string; tone: string }>>([]);
+  const [outgoing, setOutgoing] = useState<Record<string, OutgoingRequest>>({}); // por nick destino
+  const [confirmTarget, setConfirmTarget] = useState<string | null>(null); // nick al que se le va a pedir aislar red
+  const myNick = useFleetStore((s) => s.myNick);
 
   const status = useQuery({ queryKey: ["sentinel", "status", "opscenter"], queryFn: api.sentinelStatus, refetchInterval: 4000 });
   const connections = useQuery({ queryKey: ["network", "connections", "opscenter"], queryFn: api.listActiveConnections, refetchInterval: 4000 });
@@ -40,8 +58,39 @@ export default function OperationsCenter() {
     };
   }, []);
 
+  useEffect(() => {
+    const unlisten = listen<string>("chat://message", (event) => {
+      try {
+        const msg = JSON.parse(event.payload) as ChatMessage;
+        if (msg.kind !== "action_result") return;
+        const payload = JSON.parse(msg.text) as FleetActionResultPayload;
+        setOutgoing((prev) => {
+          const entry = Object.values(prev).find((r) => r.requestId === payload.requestId);
+          if (!entry) return prev; // resultado de un pedido que no es nuestro, o que ya expiro
+          return { ...prev, [entry.targetNick]: { ...entry, status: payload.ok ? "ok" : "denied", message: payload.message } };
+        });
+      } catch {
+        // Un resultado mal formado no deberia romper el resto del Centro de Operaciones.
+      }
+    });
+    return () => {
+      unlisten.then((f) => f());
+    };
+  }, []);
+
+  function requestIsolateNetwork(targetNick: string) {
+    const requestId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setOutgoing((prev) => ({ ...prev, [targetNick]: { requestId, targetNick, action: "isolate_network", status: "pending" } }));
+    api
+      .fleetRequestAction(targetNick, "isolate_network", requestId)
+      .catch((e) => setOutgoing((prev) => ({ ...prev, [targetNick]: { requestId, targetNick, action: "isolate_network", status: "error", message: String((e as Error)?.message ?? e) } })));
+    setTimeout(() => {
+      setOutgoing((prev) => (prev[targetNick]?.requestId === requestId && prev[targetNick]?.status === "pending" ? { ...prev, [targetNick]: { ...prev[targetNick], status: "timeout" } } : prev));
+    }, REQUEST_TIMEOUT_MS);
+  }
+
   const armedHoneytokens = (honeytokens.data ?? []).filter((t) => t.armed).length;
-  const fleetMembers = Object.values(useFleetStore((s) => s.members));
+  const fleetMembers = Object.values(useFleetStore((s) => s.members)).filter((m) => m.nick !== myNick);
 
   return (
     <div className="h-full overflow-y-auto bg-[radial-gradient(ellipse_at_top,rgba(255,59,59,0.06),transparent_60%)] p-5">
@@ -53,7 +102,7 @@ export default function OperationsCenter() {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         <Card title="Nivel de seguridad">
           {status.data?.has_baseline ? (
             <Gauge value={status.data.posture_score} label="Postura general" sublabel={`${status.data.unacknowledged_count} alertas sin revisar`} size={72} />
@@ -82,7 +131,7 @@ export default function OperationsCenter() {
               solo, sin tener que hacer nada mas.
             </p>
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3">
               {fleetMembers.map((m) => (
                 <div key={m.nick} className="rounded-md border border-border bg-base p-2.5">
                   <div className="mb-1.5 flex items-center gap-1.5 text-[11px]">
@@ -99,6 +148,10 @@ export default function OperationsCenter() {
                     <span className={cn("font-mono", m.unacknowledgedCount > 0 ? "text-accent-bright" : "text-ok")}>{m.unacknowledgedCount}</span>
                   </div>
                   <p className="mt-1.5 text-[9px] text-text-dim">Visto {new Date(m.receivedAtUnix * 1000).toLocaleTimeString()}</p>
+
+                  <div className="mt-2 border-t border-borderMuted pt-2">
+                    <FleetActionButton nick={m.nick} outgoing={outgoing[m.nick]} onRequest={() => setConfirmTarget(m.nick)} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -106,8 +159,8 @@ export default function OperationsCenter() {
         </Card>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card title="Mapa de red en vivo" className="xl:col-span-2">
+      <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4">
+        <Card title="Mapa de red en vivo" className="lg:col-span-2">
           <NetworkGraph connections={connections.data ?? []} processes={processes.data ?? []} height={420} />
         </Card>
 
@@ -126,7 +179,84 @@ export default function OperationsCenter() {
           </div>
         </Card>
       </div>
+
+      {confirmTarget && (
+        <ConfirmDialog
+          title="Pedir aislar red remota"
+          message={`Le vas a pedir a "${confirmTarget}" que aisle la red de SU equipo. No se ejecuta solo: del otro lado le va a aparecer una confirmacion explicita, y puede rechazarla.`}
+          confirmLabel="Enviar pedido"
+          onCancel={() => setConfirmTarget(null)}
+          onConfirm={() => {
+            requestIsolateNetwork(confirmTarget);
+            setConfirmTarget(null);
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function FleetActionButton({ nick, outgoing, onRequest }: { nick: string; outgoing?: OutgoingRequest; onRequest: () => void }) {
+  const status = outgoing?.status;
+
+  if (status === "pending") {
+    return (
+      <p className="flex items-center gap-1.5 text-[10px] text-text-dim">
+        <Loader2 size={11} className="animate-spin" /> Esperando que {nick} confirme...
+      </p>
+    );
+  }
+  if (status === "ok") {
+    return (
+      <p className="flex items-center gap-1.5 text-[10px] text-ok">
+        <Check size={11} /> Aprobado — red aislada en {nick}
+      </p>
+    );
+  }
+  if (status === "denied") {
+    return (
+      <div className="space-y-1">
+        <p className="flex items-center gap-1.5 text-[10px] text-accent-bright">
+          <X size={11} /> Rechazado por {nick}
+        </p>
+        <button onClick={onRequest} className="text-[10px] text-text-dim underline hover:text-text">
+          Volver a pedir
+        </button>
+      </div>
+    );
+  }
+  if (status === "timeout") {
+    return (
+      <div className="space-y-1">
+        <p className="flex items-center gap-1.5 text-[10px] text-warn">
+          <Clock size={11} /> Sin respuesta de {nick}
+        </p>
+        <button onClick={onRequest} className="text-[10px] text-text-dim underline hover:text-text">
+          Volver a pedir
+        </button>
+      </div>
+    );
+  }
+  if (status === "error") {
+    return (
+      <div className="space-y-1">
+        <p className="truncate text-[10px] text-accent-bright" title={outgoing?.message}>
+          Error: {outgoing?.message}
+        </p>
+        <button onClick={onRequest} className="text-[10px] text-text-dim underline hover:text-text">
+          Volver a pedir
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={onRequest}
+      className="flex w-full items-center justify-center gap-1.5 rounded-md border border-accent/40 py-1 text-[10px] text-accent-bright hover:bg-accent/10"
+    >
+      <WifiOff size={11} /> {FLEET_ACTIONS.isolate_network.label} remota
+    </button>
   );
 }
 

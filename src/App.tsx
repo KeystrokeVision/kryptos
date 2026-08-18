@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { api } from "@/lib/tauri";
+import { applyTheme, THEME_SETTING_KEY, type AppTheme } from "@/lib/theme";
 import { TopBar } from "@/components/layout/TopBar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TabBar } from "@/components/layout/TabBar";
@@ -9,8 +11,10 @@ import { MonitorPanel } from "@/components/layout/MonitorPanel";
 import { QuickToolsBar } from "@/components/layout/QuickToolsBar";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { SentinelWatcher } from "@/components/layout/SentinelWatcher";
+import { TrayBridge } from "@/components/layout/TrayBridge";
 import { FleetWatcher } from "@/components/layout/FleetWatcher";
 import { BreachOverlay } from "@/components/layout/BreachOverlay";
+import { FleetActionListener } from "@/components/layout/FleetActionListener";
 import { useTabStore } from "@/store/useTabStore";
 
 export default function App() {
@@ -18,14 +22,27 @@ export default function App() {
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0];
 
   useEffect(() => {
-    // Wait for the splash's own boot sequence + fade-out (~3.6s, see
+    // Wait for the splash's own boot sequence + fade-out (~4.4s, see
     // public/splashscreen.html + public/splashscreen.js) to actually finish
     // before swapping windows — otherwise a fast machine would cut the
     // matrix-rain/typing effect short.
     const timer = setTimeout(() => {
       invoke("close_splashscreen").catch(() => {});
-    }, 3600);
+    }, 4400);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // El tema cacheado en localStorage (aplicado sincronicamente en
+    // main.tsx) ya evito el flash inicial — esto reconcilia contra la
+    // preferencia real guardada en la base de datos, por si difieren (ej.
+    // primer arranque sin cache local, o se reinstalo la app).
+    api
+      .getSetting(THEME_SETTING_KEY)
+      .then((v) => {
+        if (v === "light" || v === "dark") applyTheme(v as AppTheme);
+      })
+      .catch(() => {});
   }, []);
 
   return (
@@ -59,7 +76,9 @@ export default function App() {
       <StatusBar />
       <CommandPalette />
       <SentinelWatcher />
+      <TrayBridge />
       <FleetWatcher />
+      <FleetActionListener />
       <BreachOverlay />
     </div>
   );

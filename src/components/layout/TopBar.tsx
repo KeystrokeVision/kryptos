@@ -34,7 +34,7 @@ export function TopBar() {
         <button
           onClick={() => setDemoOpen(true)}
           title="Efecto visual para mostrar — no ejecuta nada real"
-          className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1 text-text-dim hover:bg-white/[0.04] hover:text-text"
+          className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1 text-text-dim hover:bg-overlay/[0.04] hover:text-text"
         >
           <Sparkles size={12} />
           <span className="text-[11px]">Modo demo</span>
@@ -42,7 +42,7 @@ export function TopBar() {
 
         <button
           onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}
-          className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1 text-text-dim hover:bg-white/[0.04] hover:text-text"
+          className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1 text-text-dim hover:bg-overlay/[0.04] hover:text-text"
         >
           <Search size={12} />
           <span className="text-[11px]">Buscar</span>
@@ -61,14 +61,14 @@ export function TopBar() {
           <button
             aria-label="Minimizar"
             onClick={() => appWindow?.minimize()}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
           >
             <Minus size={14} />
           </button>
           <button
             aria-label="Maximizar"
             onClick={() => appWindow?.toggleMaximize()}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text"
           >
             <Square size={12} />
           </button>

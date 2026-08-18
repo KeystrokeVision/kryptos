@@ -21,7 +21,16 @@ const AUTOSTART_SETTING_KEY = "sentinel.autostart_with_app";
  * su panel): sus vigilantes viven en memoria del backend y no sobreviven
  * un reinicio del proceso, asi que sin esto un honeytoken desplegado ayer
  * dejaria de proteger silenciosamente hasta que alguien abra el panel.
+ *
+ * Tambien es quien decide cuando el icono de la bandeja del sistema pasa a
+ * su estado de alerta (ver src-tauri/src/tray.rs): al instante al recibir
+ * una alerta critica/alta, y cada 20s en base al conteo real de alertas sin
+ * confirmar de Sentinel — asi el icono se pone al dia solo si las
+ * confirmas desde el Centro de Operaciones sin que nadie tenga que volver
+ * a abrir la ventana.
  */
+const TRAY_ALERT_POLL_MS = 20000;
+
 export function SentinelWatcher() {
   useEffect(() => {
     api.honeytokenRearmAll().catch(() => {});
@@ -41,6 +50,8 @@ export function SentinelWatcher() {
       const alert = event.payload;
       if (alert.severity !== "critica" && alert.severity !== "alta") return;
 
+      api.setTrayAlertState(true).catch(() => {});
+
       isPermissionGranted().then((granted) => {
         if (!granted) return;
         sendNotification({
@@ -51,6 +62,24 @@ export function SentinelWatcher() {
     });
     return () => {
       unlisten.then((fn) => fn());
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    function syncTrayState() {
+      api
+        .sentinelStatus()
+        .then((status) => {
+          if (!cancelled) return api.setTrayAlertState(status.running && status.unacknowledged_count > 0);
+        })
+        .catch(() => {});
+    }
+    syncTrayState();
+    const interval = setInterval(syncTrayState, TRAY_ALERT_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
     };
   }, []);
 

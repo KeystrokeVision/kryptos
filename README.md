@@ -11,13 +11,14 @@
   docena de webs sueltas, en una sola app — con datos reales de tu propio
   equipo.
 
+  [![Version](https://img.shields.io/badge/versi%C3%B3n-0.2.0-6E40C9)](CHANGELOG.md)
   [![Tauri](https://img.shields.io/badge/Tauri-v2-24C8DB?logo=tauri&logoColor=white)](https://tauri.app)
   [![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)](https://react.dev)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
   [![Rust](https://img.shields.io/badge/Rust-stable-DE4A34?logo=rust&logoColor=white)](https://www.rust-lang.org)
   [![Platform](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux%20%7C%20macOS-0B0B0B)](#requisitos)
   [![Status](https://img.shields.io/badge/estado-en%20desarrollo%20activo-orange)](#pendiente-conocido)
-  [![License](https://img.shields.io/badge/uso-privado-lightgrey)](#licencia)
+  [![License](https://img.shields.io/badge/licencia-todos%20los%20derechos%20reservados-lightgrey)](LICENSE)
 
 </div>
 
@@ -36,7 +37,7 @@ Construida con **Tauri v2 (Rust)** en el backend y **React 19 + TypeScript +
 Vite + TailwindCSS** en el frontend. Pensada principalmente para Windows; el
 código en sí es multiplataforma y compila también en Linux/macOS.
 
-**18 módulos** · **~37 archivos de comandos de backend en Rust** · base de
+**21 módulos** · **~39 archivos de comandos de backend en Rust** · base de
 datos **SQLite** local para auditoría e historial · **cero telemetría**.
 
 ## Índice
@@ -55,7 +56,9 @@ datos **SQLite** local para auditoría e historial · **cero telemetría**.
 - [Ejecutar en desarrollo](#ejecutar-en-desarrollo)
 - [Compilar el instalador](#compilar-el-instalador)
 - [Estructura](#estructura)
+- [Versionado y releases](#versionado-y-releases)
 - [Pendiente conocido](#pendiente-conocido)
+- [Contribuir](#contribuir)
 - [Licencia](#licencia)
 
 ## Módulos
@@ -64,10 +67,10 @@ datos **SQLite** local para auditoría e historial · **cero telemetría**.
 
 | Módulo | Qué hace |
 |---|---|
-| **Dashboard** | CPU, RAM, disco, red en tiempo real, actividad reciente (conectada al historial de auditoría) y estado de Sentinel de un vistazo |
+| **Dashboard** | CPU, RAM, disco, red en tiempo real, actividad reciente (conectada al historial de auditoría), estado de Sentinel de un vistazo, y el **panel de veredicto** ("¿Estoy comprometido ahora?"): un solo botón que corre Sentinel + línea base de seguridad + honeytokens y devuelve un único veredicto con la evidencia mínima necesaria |
 | **Terminal** | Shell real (PowerShell/CMD/bash) con pestañas ilimitadas y split de paneles, PTY real vía `portable-pty`, búsqueda en el buffer, buscador de comandos rápidos, y **6 temas de color** (KRYPTOS, Matrix, Dracula, Nord, Gruvbox, Ámbar CRT) — tildes y "ñ" se ven bien gracias a forzar UTF-8 en la consola al arrancar |
 | **Explorador** | Navegar, crear, buscar, favoritos, editar archivos de texto; **selección múltiple** (Ctrl/Shift+clic) y **arrastrar y soltar** real entre carpetas, breadcrumbs y favoritos (Ctrl al soltar = copiar); vista de **tamaños** estilo `ncdu`, y **buscador de duplicados** por hash con borrado asistido |
-| **Aplicaciones** | Lanzador con tus programas favoritos y sus íconos, más detección automática de instalados |
+| **Aplicaciones** | Lanzador con tus programas favoritos y sus íconos, detección automática de instalados, y **asistente de importación de programas portables** (carpeta o `.zip`): copia el contenido a su propio almacenamiento, detecta los `.exe`, y vos confirmás cuál es el principal, nombre e ícono |
 
 ### Sistema
 
@@ -78,7 +81,7 @@ datos **SQLite** local para auditoría e historial · **cero telemetría**.
 | **Red** | Tráfico en tiempo real, conexiones activas con PID, gateway/DNS, tabla ARP de la LAN, diagnóstico de ping estilo `mtr` |
 | **SSH** | Terminal remota interactiva real + transferencia de archivos SFTP, con verificación de huella del host (TOFU) |
 | **Chat** | Mensajería peer-to-peer entre instancias de KRYPTOS en la misma red local (hospedar o unirse por IP:puerto), sin servidor intermedio — y dobla como canal de **Modo Flota** |
-| **Centro de Operaciones** | Todo lo que Sentinel sabe del equipo en una pantalla: puntaje de seguridad, mapa de red en vivo, pulso de alertas/eventos, y **Flota** con el resumen de otras instancias conectadas por Chat |
+| **Centro de Operaciones** | Todo lo que Sentinel sabe del equipo en una pantalla: puntaje de seguridad, mapa de red en vivo, pulso de alertas/eventos, y **Flota** con el resumen de otras instancias conectadas por Chat — con acción remota real (aislar la red de otro equipo de la flota, con confirmación explícita del lado que la recibe, nunca automática) |
 | **Seguridad** | 17 herramientas — [ver detalle](#seguridad-17-herramientas-en-un-módulo) |
 | **Modo Hacker** | 12 herramientas — [ver detalle](#modo-hacker-osint-pasivo-cripto-y-estética-de-terminal--todo-legal) |
 
@@ -129,14 +132,17 @@ vos mismo levantás.
 - **Escaneo de CVEs sobre software instalado** — cruza tu lista de programas instalados contra la NVD
 - **Analizador de binarios (PE/ELF)** — cabeceras, arquitectura, secciones con entropía individual, tabla de importaciones
 - **Cracker de hashes (wordlist local)** — diccionario curado + reglas de mutación tipo hashcat, para hashes de un CTF o una contraseña propia olvidada — nunca contra credenciales ajenas ni sistemas en vivo
+- **Arsenal** — ~25 herramientas externas de seguridad reales (Nmap, Amass, Subfinder, theHarvester, Burp Suite, OWASP ZAP, Nikto, Gobuster, FFUF, Wireshark, tcpdump, Aircrack-ng, Lynis, OpenVAS, Nessus, Trivy, Semgrep, SonarQube, Gitleaks, Bandit, OWASP Dependency-Check, Metasploit, y más) agrupadas por categoría — Recon, Web, Red, Auditoría, Vulnerabilidades, Código, Pentest —, con detección real de instalación, botón de instalar (`winget`/`pip`) cuando existe un instalador desatendido, y el comando exacto visible antes de correr cualquier acción
 
 </details>
 
 ### Desarrollo
 
 - **Editor** (Monaco, el motor de VS Code) — pestañas, ~30 lenguajes, explorador de proyecto integrado, botón "Ejecutar" (detecta entornos virtuales de Python), y una **biblioteca de ~30 scripts** listos para abrir y correr
+- **Scripts** — biblioteca de scripts propios: alta manual o **importación directa desde un repositorio Git** (clona, detecta el script principal por convención y deja elegir ícono), tarjetas con botón "Ejecutar" directo, edición y borrado con confirmación
 - **Git** — status, diff, stage/unstage, commit, ramas, historial, y push/pull/fetch por SSH
 - **Docker** — contenedores, imágenes, logs, ciclo de vida completo
+- **Base de datos** — cliente real para **SQLite, PostgreSQL y MySQL** (drivers Rust puros, sin instalar `psql`/`mysql` client aparte): conexiones guardadas (la contraseña nunca se persiste, igual que SSH), explorador de tablas/columnas con llaves primarias, editor SQL (Monaco, resaltado real) con Ctrl+Enter para ejecutar, grilla de resultados con límite de 1000 filas, y confirmación explícita antes de correr cualquier sentencia destructiva (INSERT/UPDATE/DELETE/DROP/ALTER/...)
 
 ### Administración
 
@@ -149,7 +155,7 @@ vos mismo levantás.
 - Pantalla de bienvenida animada: secuencia de arranque estilo terminal (lluvia de caracteres en rojo + log de "boot" tipeándose en vivo)
 - **Modo demo** — efecto visual de "película de hackers" para mostrar/grabar; no ejecuta nada real, lo dice en pantalla
 - Alerta **crítica** de Sentinel corta la pantalla entera hasta que la atendés
-- Ícono en la bandeja del sistema (cerrar minimiza, no cierra la app)
+- Ícono en la bandeja del sistema (cerrar minimiza, no cierra la app); su menú abre/enfoca la pestaña real del módulo elegido, el mismo camino que un clic en la barra lateral
 - Inicio automático con Windows — **apagado por defecto**, opt-in
 - Notificaciones nativas del sistema operativo
 - Paleta de comandos (**Ctrl+K**) para saltar a cualquier módulo al instante
@@ -161,8 +167,10 @@ Todo en KRYPTOS usa datos reales del sistema — sin mocks, sin placeholders
 disfrazados de datos reales. Cada comando de backend habla directo con el
 sistema operativo (`sysinfo`, PowerShell, `/proc`, APIs nativas) o con
 protocolos y servicios reales (SSH real vía `russh`, Git real vía `git2`,
-Docker real vía `bollard`, NVD/Have I Been Pwned/Certificate Transparency vía
-`reqwest`, solo cuando el módulo en cuestión lo pide explícitamente).
+Docker real vía `bollard`, PostgreSQL/MySQL reales vía `postgres`/`mysql`
+(drivers Rust puros, sin cliente nativo instalado aparte), NVD/Have I Been
+Pwned/Certificate Transparency vía `reqwest`, solo cuando el módulo en
+cuestión lo pide explícitamente).
 
 ## Seguridad y consentimiento
 
@@ -219,27 +227,62 @@ kryptos/
 ├── public/                    # splashscreen.html + logo (fuera del bundle de React)
 └── src-tauri/                 # Backend Rust
     └── src/
-        ├── commands/           # Un módulo por dominio (~37 archivos)
+        ├── commands/           # Un módulo por dominio (~39 archivos)
         ├── db.rs               # Conexión y esquema de SQLite
         ├── tray.rs             # Ícono de bandeja y comportamiento de la ventana
         └── main.rs
+```
+
+## Versionado y releases
+
+KRYPTOS usa [Versionado Semántico](https://semver.org/lang/es/)
+(`MAJOR.MINOR.PATCH`) y cada versión publicada queda marcada con un tag
+`vX.Y.Z` en este repositorio.
+
+- **Versión actual: `0.2.0`** (declarada en `package.json`,
+  `src-tauri/Cargo.toml` y `src-tauri/tauri.conf.json` — las tres se
+  mantienen sincronizadas a mano en cada release)
+- El historial completo de cambios por versión está en
+  [`CHANGELOG.md`](CHANGELOG.md), con formato
+  [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
+- Trabajo en curso vive en ramas `feature/*` / `devops/*` sobre `main`;
+  `main` es siempre la última versión publicada
+
+**Flujo para publicar una versión nueva:**
+
+```bash
+# 1. Actualizar version en package.json, src-tauri/Cargo.toml y src-tauri/tauri.conf.json
+# 2. Mover "[Sin publicar]" a una sección nueva "[X.Y.Z] — YYYY-MM-DD" en CHANGELOG.md
+git commit -am "chore(release): vX.Y.Z"
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin main --tags
 ```
 
 ## Pendiente conocido
 
 - **Captura de paquetes (Wireshark-lite)**: evaluado y descartado por ahora — requeriría **Npcap** instalado por separado, una dependencia Rust nativa nueva (`pnet`/`pcap`) y probablemente permisos de Administrador. Queda como el candidato más grande de Modo Hacker si se retoma más adelante
 - **Auto-actualizador**: todavía sin `tauri-plugin-updater` — cada corrección hoy requiere reinstalar a mano. Necesita además firma de código e infraestructura de releases
-- **Base de datos** y **Plugins**: aparecen en el menú pero siguen siendo placeholder ("módulo en construcción")
+- **Plugins**: sigue siendo placeholder ("módulo en construcción") — no hay todavía un formato de manifiesto ni un mecanismo de carga definido
+- **Base de datos**: el cliente de PostgreSQL/MySQL corre siempre con `sslmode=prefer`/certificado sin validar cuando TLS está activado (igual criterio que el verificador TLS de Seguridad) — no hay todavía soporte para CA propia. Tipos exóticos de columna (arrays, tipos geométricos, enums propios de Postgres) se muestran como `<tipo>` en vez de convertirse
 - **Git**: solo push/pull/fetch por SSH (HTTPS se dejó fuera a propósito — requeriría una compilación vendorizada de OpenSSL que necesita Perl)
 - **GeoIP** en el módulo de Red: requiere una license key gratuita de MaxMind que cada usuario debe conseguir por su cuenta
 - **Autocompletado real (Tab) en la Terminal**: evaluado y descartado a propósito — PowerShell/cmd ya hacen su propio tab-completion nativo dentro del PTY
-- Internacionalización (hoy todo está en español) y un tema claro real
-- **Modo Flota** comparte el estado de Sentinel entre instancias, pero no hay forma todavía de actuar a distancia — es solo lectura por ahora
+- Internacionalización: hoy todo está en español
+- **Modo Flota**: la única acción remota real por ahora es aislar la red del equipo destino (con confirmación explícita del lado que la recibe). Matar un proceso puntual o correr un script en otra instancia queda pendiente, entre otras cosas porque necesitan que quien pide la acción primero vea el estado del equipo destino (lista de procesos, etc.), no solo su nombre
+- **Arsenal**: instala vía `winget`/`pip` cuando existe un instalador desatendido para Windows; varias herramientas (varios binarios de Linux, apps que exigen configuración propia) solo muestran estado + enlace a la fuente oficial, sin instalación con un clic todavía
+
+## Contribuir
+
+¿Encontraste un bug o tenés una idea para un módulo? Ver
+[`CONTRIBUTING.md`](CONTRIBUTING.md) — plantillas de issue/PR, convenciones
+del proyecto, y cómo reportar una vulnerabilidad de seguridad.
 
 ## Licencia
 
-Proyecto privado — todos los derechos reservados. Sin licencia de uso público
-por el momento.
+Código disponible públicamente para lectura/referencia, pero **todos los
+derechos reservados** — ver [`LICENSE`](LICENSE). No está licenciado para
+uso, copia, modificación ni distribución sin autorización explícita del
+autor.
 
 ---
 

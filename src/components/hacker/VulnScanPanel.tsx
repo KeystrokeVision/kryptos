@@ -96,7 +96,7 @@ export function VulnScanPanel() {
           {apps.data && (
             <div className="max-h-56 space-y-0.5 overflow-y-auto rounded-md border border-border bg-base p-1.5">
               {apps.data.map((app) => (
-                <label key={app.name} className="flex items-center gap-2 rounded px-1.5 py-1 text-[11px] text-text-muted hover:bg-white/[0.03]">
+                <label key={app.name} className="flex items-center gap-2 rounded px-1.5 py-1 text-[11px] text-text-muted hover:bg-overlay/[0.03]">
                   <input type="checkbox" checked={selected.has(app.name)} onChange={() => toggle(app.name)} disabled={scanning} />
                   <span className="truncate">{app.name}</span>
                 </label>
@@ -114,7 +114,7 @@ export function VulnScanPanel() {
               Escanear {selected.size > 0 ? `(${selected.size})` : ""}
             </button>
             {scanning && (
-              <button onClick={cancelScan} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]">
+              <button onClick={cancelScan} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]">
                 <Square size={12} /> Cancelar
               </button>
             )}

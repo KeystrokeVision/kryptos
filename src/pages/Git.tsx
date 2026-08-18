@@ -40,7 +40,7 @@ function FileRow({ file, onToggle, onSelect, selected }: { file: FileStatus; onT
       onClick={onSelect}
       className={cn(
         "group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 text-[11px]",
-        selected ? "bg-white/[0.06] text-text" : "text-text-muted hover:bg-white/[0.03]"
+        selected ? "bg-overlay/[0.06] text-text" : "text-text-muted hover:bg-overlay/[0.03]"
       )}
     >
       <Icon size={11} className={cn(file.kind === "deleted" ? "text-accent-bright" : file.kind === "new" ? "text-ok" : "text-text-dim")} />
@@ -50,7 +50,7 @@ function FileRow({ file, onToggle, onSelect, selected }: { file: FileStatus; onT
           e.stopPropagation();
           onToggle();
         }}
-        className="rounded p-1 text-text-dim opacity-0 hover:bg-white/10 hover:text-text group-hover:opacity-100"
+        className="rounded p-1 text-text-dim opacity-0 hover:bg-overlay/10 hover:text-text group-hover:opacity-100"
         aria-label={file.staged ? "Quitar del stage" : "Agregar al stage"}
       >
         {file.staged ? <Minus size={11} /> : <Plus size={11} />}
@@ -194,13 +194,13 @@ export default function Git() {
         <div className="flex gap-1">
           <button
             onClick={() => setRemoteAction("fetch")}
-            className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-white/[0.04]"
+            className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
           >
             <DownloadCloud size={12} /> Fetch
           </button>
           <button
             onClick={() => setRemoteAction("pull")}
-            className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-white/[0.04]"
+            className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-overlay/[0.04]"
           >
             <ArrowDownToLine size={12} /> Pull
           </button>
@@ -215,20 +215,20 @@ export default function Git() {
         <div className="ml-auto flex gap-1">
           <button
             onClick={() => setView("changes")}
-            className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", view === "changes" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}
+            className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", view === "changes" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}
           >
             <ListChecks size={12} /> Cambios
           </button>
           <button
             onClick={() => setView("history")}
-            className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", view === "history" ? "bg-white/[0.06] text-text" : "text-text-dim hover:bg-white/[0.03]")}
+            className={cn("flex h-7 items-center gap-1 rounded-md px-2 text-[11px]", view === "history" ? "bg-overlay/[0.06] text-text" : "text-text-dim hover:bg-overlay/[0.03]")}
           >
             <History size={12} /> Historial
           </button>
-          <button onClick={refreshAll} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-white/[0.06] hover:text-text" aria-label="Actualizar">
+          <button onClick={refreshAll} className="flex h-7 w-7 items-center justify-center rounded-md text-text-dim hover:bg-overlay/[0.06] hover:text-text" aria-label="Actualizar">
             <RefreshCw size={13} className={status.isFetching ? "animate-spin" : ""} />
           </button>
-          <button onClick={pickRepo} className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-white/[0.04]">
+          <button onClick={pickRepo} className="flex h-7 items-center gap-1 rounded-md border border-border px-2 text-[11px] text-text-muted hover:bg-overlay/[0.04]">
             <FolderOpen size={12} /> Cambiar
           </button>
         </div>
@@ -342,7 +342,7 @@ function RemoteActionModal({
             placeholder="Ruta de la llave privada (opcional)"
             className="h-8 flex-1 rounded-md border border-border bg-base px-2.5 font-mono text-xs text-text outline-none focus:border-accent/60"
           />
-          <button type="button" onClick={pickKey} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-white/[0.04]">
+          <button type="button" onClick={pickKey} className="flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs text-text-muted hover:bg-overlay/[0.04]">
             <FolderOpen size={13} />
           </button>
         </div>
@@ -354,7 +354,7 @@ function RemoteActionModal({
           className="h-8 w-full rounded-md border border-border bg-base px-2.5 text-xs text-text outline-none focus:border-accent/60"
         />
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="h-8 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-white/[0.04]">
+          <button type="button" onClick={onCancel} className="h-8 rounded-md border border-border px-3 text-xs text-text-muted hover:bg-overlay/[0.04]">
             Cancelar
           </button>
           <button type="submit" disabled={pending} className="h-8 rounded-md bg-accent px-3 text-xs font-medium text-white hover:bg-accent-bright disabled:opacity-40">

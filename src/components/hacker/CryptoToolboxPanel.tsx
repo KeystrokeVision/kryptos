@@ -21,7 +21,7 @@ import {
   xorBytes,
 } from "@/lib/hackerCrypto";
 
-const CONFIDENCE_TONE: Record<string, string> = { alta: "text-ok border-ok/40 bg-ok/10", media: "text-warn border-warn/40 bg-warn/10", baja: "text-text-dim border-borderMuted bg-white/[0.02]" };
+const CONFIDENCE_TONE: Record<string, string> = { alta: "text-ok border-ok/40 bg-ok/10", media: "text-warn border-warn/40 bg-warn/10", baja: "text-text-dim border-borderMuted bg-overlay/[0.02]" };
 
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
@@ -174,7 +174,7 @@ function EncodingBlock() {
               }}
               className={cn(
                 "rounded-full px-2.5 py-1 text-[11px]",
-                mode === e.id ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-white/[0.04]"
+                mode === e.id ? "bg-accent text-white" : "border border-border text-text-muted hover:bg-overlay/[0.04]"
               )}
             >
               {e.label}
@@ -182,7 +182,7 @@ function EncodingBlock() {
           ))}
         </div>
         <input value={input} onChange={(ev) => onInputChange(ev.target.value)} placeholder="Escribe texto plano o codificado..." className={inputClass + " w-full"} />
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2">
           <div>
             <p className="mb-1 text-[10px] uppercase tracking-widest text-text-dim">Codificado</p>
             <div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ function JwtBlock() {
         <p className="text-[10px] text-text-dim">Solo lee — no verifica la firma. Para inspeccionar tus propios tokens, no para falsificar los de otros.</p>
         {error && <p className="text-xs text-accent-bright">{error}</p>}
         {decoded && (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2">
             <div>
               <p className="mb-1 text-[10px] uppercase tracking-widest text-text-dim">Header</p>
               <pre className="max-h-40 overflow-auto rounded-md border border-border bg-base p-2 font-mono text-[10px] text-text-muted">{JSON.stringify(decoded.header, null, 2)}</pre>

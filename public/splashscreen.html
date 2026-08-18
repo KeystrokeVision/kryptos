@@ -27,7 +27,7 @@
       .panel {
         position: relative;
         width: 520px;
-        height: 300px;
+        height: 336px;
         background: #050505;
         border: 1px solid rgba(255, 59, 59, 0.35);
         border-radius: 10px;
@@ -128,8 +128,34 @@
           opacity: 0;
         }
       }
+      .progress-track {
+        margin-top: 12px;
+        height: 3px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        border-radius: 2px;
+        background: linear-gradient(90deg, rgba(255, 59, 59, 0.7), #ff3b3b);
+        box-shadow: 0 0 8px rgba(255, 59, 59, 0.55);
+        animation: progress-fill 3.9s linear forwards;
+      }
+      @keyframes progress-fill {
+        from {
+          width: 0%;
+        }
+        to {
+          width: 100%;
+        }
+      }
       .wordmark {
-        text-align: right;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 8px;
         font-size: 10px;
         letter-spacing: 0.3em;
         color: rgba(234, 234, 234, 0.4);
@@ -138,6 +164,10 @@
       }
       .wordmark.show {
         opacity: 1;
+      }
+      .wordmark span:last-child {
+        color: rgba(0, 210, 106, 0.85);
+        letter-spacing: 0.15em;
       }
       @media (prefers-reduced-motion: reduce) {
         .panel {
@@ -150,6 +180,10 @@
         }
         .boot-line:last-child::after {
           animation: none;
+        }
+        .progress-bar {
+          animation: none;
+          width: 100%;
         }
       }
     </style>
@@ -164,7 +198,11 @@
           <span class="brand-text"><b>KRYPTOS</b> // terminal de seguridad</span>
         </div>
         <div id="boot-log"></div>
-        <div class="wordmark">SISTEMA LISTO</div>
+        <div class="progress-track"><div class="progress-bar"></div></div>
+        <div class="wordmark">
+          <span>SISTEMA LISTO</span>
+          <span>&#9679; OK</span>
+        </div>
       </div>
     </div>
     <script src="/splashscreen.js"></script>

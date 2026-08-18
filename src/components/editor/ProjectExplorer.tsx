@@ -28,7 +28,7 @@ function TreeNode({ entry, depth, onOpenFile, activePath }: TreeNodeProps) {
         onClick={() => onOpenFile(entry.path, entry.name)}
         style={{ paddingLeft: `${depth * 14 + 26}px` }}
         className={cn(
-          "flex w-full items-center gap-1.5 py-1 pr-2 text-left text-[11px] hover:bg-white/[0.05]",
+          "flex w-full items-center gap-1.5 py-1 pr-2 text-left text-[11px] hover:bg-overlay/[0.05]",
           isActive ? "bg-accent/10 text-text" : "text-text-muted"
         )}
       >
@@ -43,7 +43,7 @@ function TreeNode({ entry, depth, onOpenFile, activePath }: TreeNodeProps) {
       <button
         onClick={() => setExpanded((v) => !v)}
         style={{ paddingLeft: `${depth * 14 + 8}px` }}
-        className="flex w-full items-center gap-1 py-1 pr-2 text-left text-[11px] text-text-muted hover:bg-white/[0.05]"
+        className="flex w-full items-center gap-1 py-1 pr-2 text-left text-[11px] text-text-muted hover:bg-overlay/[0.05]"
       >
         {expanded ? <ChevronDown size={11} className="shrink-0" /> : <ChevronRight size={11} className="shrink-0" />}
         {expanded ? <FolderOpen size={12} className="shrink-0 text-accent-bright" /> : <Folder size={12} className="shrink-0 text-accent-bright" />}
