@@ -24,6 +24,13 @@ versión publicada tiene un tag `vX.Y.Z` en el repositorio.
 - Sección "Capturas" en el README con pantallazos reales de Dashboard,
   Terminal, Explorador, Modo Hacker, Base de datos, Configuración y
   Configuración > Actualizaciones
+- **Módulo Plugins** (deja de ser placeholder): mini-herramientas de un
+  solo `.html` autocontenido + `plugin.json`, instaladas desde una
+  carpeta o `.zip` y renderizadas en un `<iframe sandbox="allow-scripts">`
+  sin acceso a Tauri, al sistema de archivos ni a la red — activar,
+  desactivar y desinstalar en cualquier momento. Viene con 4 plugins de
+  ejemplo instalados de fábrica (JSON Formatter, Base64/JWT, Calculadora
+  de subred, y una bienvenida que explica el formato)
 
 ### Corregido
 

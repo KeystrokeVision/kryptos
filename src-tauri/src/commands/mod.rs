@@ -65,6 +65,7 @@ pub mod network_tools;
 pub mod panic;
 pub mod password_tools;
 pub mod persistence;
+pub mod plugins;
 pub mod recon;
 pub mod scripts;
 pub mod security;

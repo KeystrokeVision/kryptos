@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Bienvenida a Plugins</title>
+<style>
+  :root {
+    --base: #050505;
+    --panel: #0d0d0d;
+    --border: #222222;
+    --accent: #b00020;
+    --accent-bright: #ff3b3b;
+    --text: #f2f2f2;
+    --text-dim: #9a9a9a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--base);
+    color: var(--text);
+    font-family: "Cascadia Code", "Consolas", "SFMono-Regular", ui-monospace, monospace;
+    overflow: hidden;
+  }
+  canvas#rain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.35;
+  }
+  .wrap {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    overflow-y: auto;
+    padding: 40px 24px 60px;
+  }
+  .stage {
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .glyph {
+    font-size: 42px;
+    filter: drop-shadow(0 0 18px rgba(255, 59, 59, 0.55));
+  }
+  h1 {
+    margin: 10px 0 4px;
+    font-size: 26px;
+    letter-spacing: 0.08em;
+    color: var(--accent-bright);
+    text-shadow: 0 0 20px rgba(255, 59, 59, 0.35);
+  }
+  .sub {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .card {
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 0 1px rgba(255, 59, 59, 0.03) inset;
+  }
+  .card h2 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent-bright);
+  }
+  .card p {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #d6d6d6;
+  }
+  .card p:last-child { margin-bottom: 0; }
+  code, pre {
+    font-family: inherit;
+  }
+  code {
+    background: rgba(255, 59, 59, 0.08);
+    color: var(--accent-bright);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 11.5px;
+  }
+  pre {
+    background: #000000;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: #cfcfcf;
+  }
+  .pre-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin: 14px 0 6px;
+  }
+  .fields {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    margin-top: 8px;
+  }
+  .fields td {
+    padding: 4px 0;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .fields td:first-child {
+    color: var(--accent-bright);
+    padding-right: 10px;
+    white-space: nowrap;
+    width: 1%;
+  }
+  .fields td:last-child { color: #b8b8b8; }
+  .footer {
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+  .badge {
+    display: inline-block;
+    margin-top: 18px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-bright);
+    border: 1px solid rgba(255, 59, 59, 0.35);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+
+<div class="wrap">
+  <div class="stage">
+    <div class="glyph">🗝️</div>
+    <h1>SISTEMA DE PLUGINS</h1>
+    <div class="sub">Extensiones propias, aisladas, sin puertas traseras.</div>
+
+    <div class="card">
+      <h2>Que es un plugin</h2>
+      <p>
+        Un plugin de KRYPTOS es <strong>un solo archivo <code>.html</code> autocontenido</strong> — CSS y JS
+        embebidos ahi mismo, sin dependencias externas — mas un <code>plugin.json</code> que lo describe. Nada mas.
+      </p>
+      <p>
+        Se carga dentro de un <code>&lt;iframe sandbox="allow-scripts"&gt;</code>: corre tu codigo, pero
+        <strong>no tiene acceso</strong> a los comandos de Tauri, al sistema de archivos, ni a nada del resto de la
+        app. Es el mismo criterio de "nada se ejecuta a ciegas" que ya usa el resto de KRYPTOS, aplicado a lo que vos
+        mismo instales.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>plugin.json</h2>
+      <table class="fields">
+        <tr><td>name</td><td>nombre visible (requerido)</td></tr>
+        <tr><td>version</td><td>version, cualquier texto (requerido)</td></tr>
+        <tr><td>entry</td><td>archivo .html a cargar (requerido)</td></tr>
+        <tr><td>description</td><td>una linea, opcional</td></tr>
+        <tr><td>author</td><td>opcional</td></tr>
+        <tr><td>icon</td><td>un emoji, opcional</td></tr>
+      </table>
+
+      <div class="pre-title">Ejemplo minimo</div>
+      <pre>{
+  "name": "Mi plugin",
+  "version": "1.0.0",
+  "entry": "index.html"
+}</pre>
+    </div>
+
+    <div class="card">
+      <h2>Como instalar el tuyo</h2>
+      <p>
+        Ponete <code>plugin.json</code> y tu <code>index.html</code> en una carpeta (o comprimilos en un
+        <code>.zip</code>) y usa el boton <strong>"Instalar"</strong> arriba de la lista de Plugins. Podes
+        desactivarlo o desinstalarlo cuando quieras — nunca queda corriendo algo que no elegiste vos.
+      </p>
+    </div>
+
+    <div class="badge">4 plugins vienen instalados de fabrica — este es uno</div>
+    <div class="footer">KRYPTOS — The Ultimate System Terminal</div>
+  </div>
+</div>
+
+<script>
+  // Lluvia estilo "matrix" — puramente decorativa, canvas 2D nativo, sin
+  // librerias externas.
+  const canvas = document.getElementById("rain");
+  const ctx = canvas.getContext("2d");
+  const chars = "01KRYPTOS░▒▓";
+  let cols, drops;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols = Math.floor(canvas.width / 16);
+    drops = new Array(cols).fill(0).map(() => Math.random() * -40);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  function tick() {
+    ctx.fillStyle = "rgba(5,5,5,0.12)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "14px monospace";
+    for (let i = 0; i < cols; i++) {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      const y = drops[i] * 16;
+      const brightness = Math.random();
+      ctx.fillStyle = brightness > 0.92 ? "#ff8080" : "rgba(176,0,32," + (0.35 + brightness * 0.4) + ")";
+      ctx.fillText(ch, i * 16, y);
+      if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+</script>
+</body>
+</html>

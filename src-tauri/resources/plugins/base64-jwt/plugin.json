@@ -1,0 +1,8 @@
+{
+  "name": "Base64 / JWT",
+  "version": "1.0.0",
+  "description": "Codifica y decodifica Base64, e inspecciona JWT (header + payload).",
+  "author": "KRYPTOS",
+  "icon": "🔐",
+  "entry": "index.html"
+}

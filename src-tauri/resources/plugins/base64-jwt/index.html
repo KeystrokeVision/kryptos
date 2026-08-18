@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Base64 / JWT</title>
+<style>
+  :root {
+    --base: #050505; --panel: #0d0d0d; --border: #222222;
+    --accent: #b00020; --accent-bright: #ff3b3b;
+    --text: #f2f2f2; --text-dim: #9a9a9a; --warn: #f5a524;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; background: var(--base); color: var(--text);
+    font-family: "Cascadia Code", Consolas, ui-monospace, monospace;
+  }
+  .app { display: flex; flex-direction: column; height: 100%; }
+  header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  header .icon { font-size: 16px; }
+  header h1 { font-size: 12px; margin: 0; font-weight: 600; letter-spacing: 0.04em; }
+  .tabs { display: flex; gap: 4px; padding: 8px 12px 0; }
+  .tab {
+    font-size: 11px; padding: 7px 14px; cursor: pointer; color: var(--text-dim);
+    border: 1px solid var(--border); border-bottom: none; border-radius: 8px 8px 0 0;
+    background: var(--panel);
+  }
+  .tab.active { color: var(--accent-bright); background: var(--base); border-color: var(--border); }
+  .panel { flex: 1; min-height: 0; border-top: 1px solid var(--border); display: none; flex-direction: column; }
+  .panel.active { display: flex; }
+
+  textarea {
+    width: 100%; min-height: 90px; resize: vertical; outline: none;
+    background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 12px; padding: 10px; margin: 12px 12px 0;
+  }
+  .row { display: flex; gap: 8px; padding: 10px 12px 0; }
+  button {
+    font-family: inherit; font-size: 11px; cursor: pointer;
+    background: transparent; color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 11px;
+  }
+  button:hover { border-color: rgba(255,59,59,0.4); color: var(--text); background: rgba(255,59,59,0.06); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  button.primary:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+  .out {
+    margin: 10px 12px 12px; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: #000; font-size: 12px; line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+    overflow-y: auto; flex: 1; color: #cfcfcf;
+  }
+  .out.error { color: var(--accent-bright); }
+  .jwt-section-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-bright);
+    margin: 4px 0 6px;
+  }
+  .warn-banner {
+    margin: 12px 12px 0; padding: 8px 10px; border-radius: 8px;
+    border: 1px solid rgba(245,165,36,0.35); background: rgba(245,165,36,0.08);
+    color: var(--warn); font-size: 10.5px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <span class="icon">🔐</span>
+    <h1>BASE64 / JWT</h1>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="b64">Base64</div>
+    <div class="tab" data-tab="jwt">JWT</div>
+  </div>
+
+  <div class="panel active" id="panel-b64">
+    <textarea id="b64-input" spellcheck="false" placeholder="Texto o Base64 a convertir..."></textarea>
+    <div class="row">
+      <button class="primary" id="b64-encode">Codificar →</button>
+      <button id="b64-decode">← Decodificar</button>
+      <button id="b64-clear">Limpiar</button>
+    </div>
+    <pre class="out" id="b64-out"></pre>
+  </div>
+
+  <div class="panel" id="panel-jwt">
+    <textarea id="jwt-input" spellcheck="false" placeholder="eyJhbGciOi... (pega un JWT completo)"></textarea>
+    <div class="row">
+      <button class="primary" id="jwt-decode">Decodificar</button>
+      <button id="jwt-clear">Limpiar</button>
+    </div>
+    <div class="warn-banner">⚠ Solo lee header y payload — no verifica la firma. No es una herramienta de auth.</div>
+    <pre class="out" id="jwt-out"></pre>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.onclick = () => {
+      document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById("panel-" + tab.dataset.tab).classList.add("active");
+    };
+  });
+
+  // UTF-8 safe base64 (btoa/atob solo manejan latin1 nativamente).
+  function b64encode(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = "";
+    bytes.forEach((b) => (bin += String.fromCharCode(b)));
+    return btoa(bin);
+  }
+  function b64decode(str) {
+    const bin = atob(str);
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+  function b64urlDecode(str) {
+    let s = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    return b64decode(s);
+  }
+
+  const b64out = document.getElementById("b64-out");
+  document.getElementById("b64-encode").onclick = () => {
+    try {
+      b64out.textContent = b64encode(document.getElementById("b64-input").value);
+      b64out.classList.remove("error");
+    } catch (e) {
+      b64out.textContent = "Error: " + e.message;
+      b64out.classList.add("error");
+    }
+  };
+  document.getElementById("b64-decode").onclick = () => {
+    try {
+      b64out.textContent = b64decode(document.getElementById("b64-input").value.trim());
+      b64out.classList.remove("error");
+    } catch (e) {
+      b64out.textContent = "No es Base64 valido: " + e.message;
+      b64out.classList.add("error");
+    }
+  };
+  document.getElementById("b64-clear").onclick = () => {
+    document.getElementById("b64-input").value = "";
+    b64out.textContent = "";
+    b64out.className = "out";
+  };
+
+  const jwtOut = document.getElementById("jwt-out");
+  document.getElementById("jwt-decode").onclick = () => {
+    const token = document.getElementById("jwt-input").value.trim();
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      jwtOut.textContent = "Eso no tiene forma de JWT (se esperan 3 partes separadas por '.').";
+      jwtOut.classList.add("error");
+      return;
+    }
+    try {
+      const header = JSON.parse(b64urlDecode(parts[0]));
+      const payload = JSON.parse(b64urlDecode(parts[1]));
+      jwtOut.classList.remove("error");
+      jwtOut.textContent =
+        "── HEADER ──\n" + JSON.stringify(header, null, 2) +
+        "\n\n── PAYLOAD ──\n" + JSON.stringify(payload, null, 2) +
+        "\n\n── FIRMA ──\n(" + parts[2].length + " caracteres, sin verificar)";
+    } catch (e) {
+      jwtOut.textContent = "No se pudo decodificar: " + e.message;
+      jwtOut.classList.add("error");
+    }
+  };
+  document.getElementById("jwt-clear").onclick = () => {
+    document.getElementById("jwt-input").value = "";
+    jwtOut.textContent = "";
+    jwtOut.className = "out";
+  };
+</script>
+</body>
+</html>

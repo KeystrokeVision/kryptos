@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>JSON Formatter</title>
+<style>
+  :root {
+    --base: #050505; --panel: #0d0d0d; --border: #222222;
+    --accent: #b00020; --accent-bright: #ff3b3b;
+    --text: #f2f2f2; --text-dim: #9a9a9a; --ok: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; background: var(--base); color: var(--text);
+    font-family: "Cascadia Code", Consolas, ui-monospace, monospace;
+  }
+  .app { display: flex; flex-direction: column; height: 100%; }
+  header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  header .icon { font-size: 16px; }
+  header h1 { font-size: 12px; margin: 0; font-weight: 600; letter-spacing: 0.04em; }
+  header .hint { margin-left: auto; font-size: 10.5px; color: var(--text-dim); }
+  .toolbar { display: flex; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  button {
+    font-family: inherit; font-size: 11px; cursor: pointer;
+    background: transparent; color: var(--text-dim);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 11px;
+  }
+  button:hover { border-color: rgba(255,59,59,0.4); color: var(--text); background: rgba(255,59,59,0.06); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  button.primary:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+  main { flex: 1; min-height: 0; display: flex; gap: 1px; background: var(--border); }
+  .pane { flex: 1; display: flex; flex-direction: column; background: var(--base); min-width: 0; }
+  .pane-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim);
+    padding: 6px 12px; border-bottom: 1px solid var(--border);
+  }
+  textarea, pre.out {
+    flex: 1; margin: 0; border: 0; outline: none; resize: none;
+    background: transparent; color: var(--text); font-family: inherit; font-size: 12px;
+    padding: 12px; line-height: 1.55; overflow: auto; white-space: pre-wrap; word-break: break-word;
+  }
+  pre.out.error { color: var(--accent-bright); }
+  pre.out.ok-tint { color: #cde9d5; }
+  footer {
+    padding: 6px 14px; border-top: 1px solid var(--border); background: var(--panel);
+    font-size: 10.5px; color: var(--text-dim); display: flex; gap: 14px;
+  }
+  footer .ok { color: var(--ok); }
+  footer .err { color: var(--accent-bright); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <span class="icon">🧾</span>
+    <h1>JSON FORMATTER</h1>
+    <span class="hint">todo corre local, nada sale de este panel</span>
+  </header>
+
+  <div class="toolbar">
+    <button class="primary" id="fmt">Formatear</button>
+    <button id="min">Minificar</button>
+    <button id="sort">Ordenar claves</button>
+    <button id="copy">Copiar resultado</button>
+    <button id="clear">Limpiar</button>
+  </div>
+
+  <main>
+    <div class="pane">
+      <div class="pane-label">Entrada</div>
+      <textarea id="input" spellcheck="false" placeholder='{"kryptos": true, "modulos": 21}'></textarea>
+    </div>
+    <div class="pane">
+      <div class="pane-label">Resultado</div>
+      <pre class="out" id="output"></pre>
+    </div>
+  </main>
+
+  <footer>
+    <span id="status">Pega un JSON y elegi una accion.</span>
+    <span id="meta"></span>
+  </footer>
+</div>
+
+<script>
+  const input = document.getElementById("input");
+  const output = document.getElementById("output");
+  const status = document.getElementById("status");
+  const meta = document.getElementById("meta");
+
+  function locateError(text, err) {
+    const m = /position (\d+)/.exec(err.message);
+    if (!m) return "";
+    const pos = parseInt(m[1], 10);
+    const before = text.slice(0, pos);
+    const line = before.split("\n").length;
+    const col = pos - before.lastIndexOf("\n");
+    return ` (linea ${line}, columna ${col})`;
+  }
+
+  function parseOrFail() {
+    const text = input.value.trim();
+    if (!text) throw new Error("No hay nada para procesar.");
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      throw new Error("JSON invalido: " + err.message + locateError(text, err));
+    }
+  }
+
+  function showResult(text, okMessage) {
+    output.textContent = text;
+    output.classList.remove("error");
+    output.classList.add("ok-tint");
+    status.innerHTML = '<span class="ok">✓</span> ' + okMessage;
+    meta.textContent = text.length + " caracteres";
+  }
+
+  function showError(err) {
+    output.textContent = String(err.message || err);
+    output.classList.add("error");
+    output.classList.remove("ok-tint");
+    status.innerHTML = '<span class="err">✗</span> Hay un error';
+    meta.textContent = "";
+  }
+
+  document.getElementById("fmt").onclick = () => {
+    try { showResult(JSON.stringify(parseOrFail(), null, 2), "Formateado"); }
+    catch (e) { showError(e); }
+  };
+  document.getElementById("min").onclick = () => {
+    try { showResult(JSON.stringify(parseOrFail()), "Minificado"); }
+    catch (e) { showError(e); }
+  };
+  document.getElementById("sort").onclick = () => {
+    try {
+      const sortKeys = (v) => {
+        if (Array.isArray(v)) return v.map(sortKeys);
+        if (v && typeof v === "object") {
+          return Object.keys(v).sort().reduce((acc, k) => ((acc[k] = sortKeys(v[k])), acc), {});
+        }
+        return v;
+      };
+      showResult(JSON.stringify(sortKeys(parseOrFail()), null, 2), "Claves ordenadas alfabeticamente");
+    } catch (e) { showError(e); }
+  };
+  document.getElementById("copy").onclick = async () => {
+    if (!output.textContent) return;
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      status.innerHTML = '<span class="ok">✓</span> Copiado al portapapeles';
+    } catch {
+      status.textContent = "No se pudo copiar (el portapapeles esta bloqueado en este contexto).";
+    }
+  };
+  document.getElementById("clear").onclick = () => {
+    input.value = "";
+    output.textContent = "";
+    output.className = "out";
+    status.textContent = "Pega un JSON y elegi una accion.";
+    meta.textContent = "";
+  };
+</script>
+</body>
+</html>

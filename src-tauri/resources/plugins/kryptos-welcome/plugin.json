@@ -1,0 +1,8 @@
+{
+  "name": "Bienvenida a Plugins",
+  "version": "1.0.0",
+  "description": "Que es el sistema de Plugins de KRYPTOS y como armar el tuyo propio.",
+  "author": "KRYPTOS",
+  "icon": "🗝️",
+  "entry": "index.html"
+}

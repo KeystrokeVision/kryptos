@@ -36,6 +36,7 @@ import type { HoneytokenInfo } from "@/types/honeytoken";
 import type { ProcessDossier } from "@/types/dossier";
 import type { DbConnectionProfile, DbConnectParams, DbTableInfo, DbColumnInfo, DbQueryResult } from "@/types/database";
 import type { ScriptEntry, ScriptRunResult, ScriptImportResult } from "@/types/scripts";
+import type { PluginEntry, PluginImportResult } from "@/types/plugins";
 import type { ExternalToolStatus, HacktoolRunResult } from "@/types/hacktools";
 
 export interface CommandOutput {
@@ -301,6 +302,18 @@ export const api = {
   deleteScript: (id: string) => invoke<void>("delete_script", { id }),
   getScriptIconDataUrl: (iconFile: string) => invoke<string>("get_script_icon_data_url", { iconFile }),
   openScriptFolder: (id: string) => invoke<void>("open_script_folder", { id }),
+
+  // Plugins — un plugin es un solo .html autocontenido (CSS/JS inline) +
+  // plugin.json, importado con el mismo flujo de dos pasos que Scripts,
+  // y renderizado en un <iframe sandbox> sin ningun puente a Tauri.
+  listPlugins: () => invoke<PluginEntry[]>("list_plugins"),
+  importPluginSource: (sourcePath: string) => invoke<PluginImportResult>("import_plugin_source", { sourcePath }),
+  cancelPluginImport: (importId: string) => invoke<void>("cancel_plugin_import", { importId }),
+  finalizePluginImport: (importId: string) => invoke<PluginEntry>("finalize_plugin_import", { importId }),
+  setPluginEnabled: (id: string, enabled: boolean) => invoke<PluginEntry>("set_plugin_enabled", { id, enabled }),
+  deletePlugin: (id: string) => invoke<void>("delete_plugin", { id }),
+  getPluginHtml: (id: string) => invoke<string>("get_plugin_html", { id }),
+  openPluginFolder: (id: string) => invoke<void>("open_plugin_folder", { id }),
 
   // SSH — ver src-tauri/src/commands/ssh.rs
   listSshProfiles: () => invoke<SshProfile[]>("list_ssh_profiles"),

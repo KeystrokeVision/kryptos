@@ -20,6 +20,7 @@ fn main() {
         .setup(|app| {
             tray::setup_tray(app)?;
             commands::window::snap_main_window_to_work_area(app);
+            commands::plugins::seed_default_plugins(&app.handle().clone());
             Ok(())
         })
         .manage(commands::terminal::TerminalManager::default())
@@ -214,6 +215,14 @@ fn main() {
             commands::database::db_list_tables,
             commands::database::db_list_columns,
             commands::database::db_run_query,
+            commands::plugins::list_plugins,
+            commands::plugins::import_plugin_source,
+            commands::plugins::cancel_plugin_import,
+            commands::plugins::finalize_plugin_import,
+            commands::plugins::set_plugin_enabled,
+            commands::plugins::delete_plugin,
+            commands::plugins::get_plugin_html,
+            commands::plugins::open_plugin_folder,
         ])
         .run(tauri::generate_context!())
         .expect("error al ejecutar la aplicacion KRYPTOS");

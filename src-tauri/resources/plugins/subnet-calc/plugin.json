@@ -1,0 +1,8 @@
+{
+  "name": "Calculadora de subred",
+  "version": "1.0.0",
+  "description": "IPv4 + CIDR o mascara → red, broadcast, rango de hosts, total de hosts.",
+  "author": "KRYPTOS",
+  "icon": "🌐",
+  "entry": "index.html"
+}

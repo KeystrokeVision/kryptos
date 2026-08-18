@@ -37,7 +37,7 @@ Construida con **Tauri v2 (Rust)** en el backend y **React 19 + TypeScript +
 Vite + TailwindCSS** en el frontend. Pensada principalmente para Windows; el
 código en sí es multiplataforma y compila también en Linux/macOS.
 
-**21 módulos** · **~39 archivos de comandos de backend en Rust** · base de
+**21 módulos** · **40 archivos de comandos de backend en Rust** · base de
 datos **SQLite** local para auditoría e historial · **cero telemetría**.
 
 ## Capturas
@@ -169,6 +169,7 @@ vos mismo levantás.
 
 - **Usuarios** — cuentas del sistema, solo lectura
 - **Logs** — registro de eventos general del sistema, exportable a CSV
+- **Plugins** — mini-herramientas de un solo archivo `.html` autocontenido (CSS/JS inline) + `plugin.json`, instaladas desde una carpeta o `.zip` y renderizadas en un `<iframe sandbox="allow-scripts">` sin acceso a Tauri, al sistema de archivos ni a la red más allá de lo que el propio navegador permite — activar/desactivar/desinstalar en cualquier momento. Viene con 4 plugins de ejemplo instalados de fábrica (JSON Formatter, Base64/JWT, Calculadora de subred, y una bienvenida que explica el formato) que podés borrar si no los querés
 - **Configuración** — inicio automático (opcional), notificaciones, shell y tema de terminal por defecto, autostart de Sentinel
 
 ### Todo el sistema
@@ -249,7 +250,7 @@ kryptos/
 ├── public/                    # splashscreen.html + logo (fuera del bundle de React)
 └── src-tauri/                 # Backend Rust
     └── src/
-        ├── commands/           # Un módulo por dominio (~39 archivos)
+        ├── commands/           # Un módulo por dominio (40 archivos)
         ├── db.rs               # Conexión y esquema de SQLite
         ├── tray.rs             # Ícono de bandeja y comportamiento de la ventana
         └── main.rs
@@ -291,7 +292,6 @@ llega a los usuarios sin que alguien la mire antes.
 ## Pendiente conocido
 
 - **Captura de paquetes (Wireshark-lite)**: evaluado y descartado por ahora — requeriría **Npcap** instalado por separado, una dependencia Rust nativa nueva (`pnet`/`pcap`) y probablemente permisos de Administrador. Queda como el candidato más grande de Modo Hacker si se retoma más adelante
-- **Plugins**: sigue siendo placeholder ("módulo en construcción") — no hay todavía un formato de manifiesto ni un mecanismo de carga definido
 - **Base de datos**: el cliente de PostgreSQL/MySQL corre siempre con `sslmode=prefer`/certificado sin validar cuando TLS está activado (igual criterio que el verificador TLS de Seguridad) — no hay todavía soporte para CA propia. Tipos exóticos de columna (arrays, tipos geométricos, enums propios de Postgres) se muestran como `<tipo>` en vez de convertirse
 - **Git**: solo push/pull/fetch por SSH (HTTPS se dejó fuera a propósito — requeriría una compilación vendorizada de OpenSSL que necesita Perl)
 - **GeoIP** en el módulo de Red: requiere una license key gratuita de MaxMind que cada usuario debe conseguir por su cuenta

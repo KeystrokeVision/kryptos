@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Calculadora de subred</title>
+<style>
+  :root {
+    --base: #050505; --panel: #0d0d0d; --border: #222222;
+    --accent: #b00020; --accent-bright: #ff3b3b;
+    --text: #f2f2f2; --text-dim: #9a9a9a;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; background: var(--base); color: var(--text);
+    font-family: "Cascadia Code", Consolas, ui-monospace, monospace;
+  }
+  .app { display: flex; flex-direction: column; height: 100%; }
+  header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  header .icon { font-size: 16px; }
+  header h1 { font-size: 12px; margin: 0; font-weight: 600; letter-spacing: 0.04em; }
+  .body { flex: 1; overflow-y: auto; padding: 16px; max-width: 560px; }
+  .field-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  input {
+    font-family: inherit; font-size: 13px; background: var(--panel); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; outline: none;
+  }
+  input:focus { border-color: rgba(255,59,59,0.5); }
+  #ip { flex: 1; }
+  .slash { color: var(--text-dim); }
+  #cidr { width: 64px; }
+  button {
+    font-family: inherit; font-size: 11.5px; cursor: pointer;
+    background: var(--accent); border: 1px solid var(--accent); color: white;
+    border-radius: 6px; padding: 8px 14px;
+  }
+  button:hover { background: var(--accent-bright); border-color: var(--accent-bright); }
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .preset {
+    font-size: 10.5px; color: var(--text-dim); border: 1px solid var(--border);
+    border-radius: 999px; padding: 3px 10px; cursor: pointer;
+  }
+  .preset:hover { color: var(--text); border-color: rgba(255,59,59,0.4); }
+  .error {
+    color: var(--accent-bright); font-size: 12px; padding: 10px; border: 1px solid rgba(255,59,59,0.3);
+    border-radius: 8px; background: rgba(255,59,59,0.06); margin-bottom: 12px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table td { padding: 8px 4px; border-top: 1px solid var(--border); }
+  table td:first-child { color: var(--text-dim); width: 45%; }
+  table td:last-child { color: var(--accent-bright); font-weight: 600; }
+  .bits {
+    margin-top: 16px; font-size: 10.5px; color: var(--text-dim); line-height: 1.8; word-break: break-all;
+  }
+  .bits .net { color: var(--accent-bright); }
+  .bits .host { color: #6ba7ff; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <span class="icon">🌐</span>
+    <h1>CALCULADORA DE SUBRED</h1>
+  </header>
+
+  <div class="body">
+    <div class="field-row">
+      <input id="ip" type="text" placeholder="192.168.1.10" value="192.168.1.10" />
+      <span class="slash">/</span>
+      <input id="cidr" type="number" min="0" max="32" value="24" />
+      <button id="calc">Calcular</button>
+    </div>
+    <div class="presets">
+      <span class="preset" data-ip="192.168.0.1" data-cidr="24">192.168.0.1/24</span>
+      <span class="preset" data-ip="10.0.0.1" data-cidr="8">10.0.0.1/8</span>
+      <span class="preset" data-ip="172.16.5.10" data-cidr="20">172.16.5.10/20</span>
+      <span class="preset" data-ip="192.168.1.1" data-cidr="30">192.168.1.1/30</span>
+    </div>
+
+    <div id="error" class="error" style="display:none"></div>
+    <table id="result" style="display:none"></table>
+    <div id="bits" class="bits"></div>
+  </div>
+</div>
+
+<script>
+  function parseIp(str) {
+    const parts = str.trim().split(".");
+    if (parts.length !== 4) return null;
+    const nums = parts.map((p) => Number(p));
+    if (nums.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null;
+    return (nums[0] << 24) | (nums[1] << 16) | (nums[2] << 8) | nums[3];
+  }
+  function toIp(n) {
+    return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+  }
+  function toBinary(n) {
+    return (n >>> 0).toString(2).padStart(32, "0").match(/.{8}/g).join(".");
+  }
+
+  function calculate() {
+    const errorEl = document.getElementById("error");
+    const resultEl = document.getElementById("result");
+    const bitsEl = document.getElementById("bits");
+    errorEl.style.display = "none";
+    resultEl.style.display = "none";
+    bitsEl.innerHTML = "";
+
+    const ipStr = document.getElementById("ip").value;
+    const cidr = parseInt(document.getElementById("cidr").value, 10);
+    const ip = parseIp(ipStr);
+
+    if (ip === null) {
+      errorEl.textContent = "IP invalida. Usa el formato 192.168.1.10.";
+      errorEl.style.display = "block";
+      return;
+    }
+    if (!Number.isInteger(cidr) || cidr < 0 || cidr > 32) {
+      errorEl.textContent = "El prefijo CIDR debe estar entre 0 y 32.";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    const mask = cidr === 0 ? 0 : (0xffffffff << (32 - cidr)) >>> 0;
+    const network = (ip & mask) >>> 0;
+    const broadcast = (network | (~mask >>> 0)) >>> 0;
+    const totalHosts = Math.pow(2, 32 - cidr);
+    const usableHosts = cidr >= 31 ? 0 : totalHosts - 2;
+    const firstHost = cidr >= 31 ? network : (network + 1) >>> 0;
+    const lastHost = cidr >= 31 ? broadcast : (broadcast - 1) >>> 0;
+
+    const rows = [
+      ["Direccion IP", toIp(ip)],
+      ["Mascara de subred", toIp(mask) + " (/" + cidr + ")"],
+      ["Direccion de red", toIp(network)],
+      ["Broadcast", toIp(broadcast)],
+      ["Rango de hosts", usableHosts > 0 ? toIp(firstHost) + " – " + toIp(lastHost) : "(no aplica en /" + cidr + ")"],
+      ["Hosts utilizables", usableHosts.toLocaleString("es")],
+      ["Total de direcciones", totalHosts.toLocaleString("es")],
+    ];
+    resultEl.innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+    resultEl.style.display = "table";
+
+    const bits = ("1".repeat(cidr) + "0".repeat(32 - cidr)).split("");
+    let bitsHtml = "";
+    for (let i = 0; i < 32; i++) {
+      bitsHtml += `<span class="${i < cidr ? "net" : "host"}">${bits[i]}</span>`;
+      if ((i + 1) % 8 === 0 && i !== 31) bitsHtml += " . ";
+    }
+    bitsEl.innerHTML = "Mascara en binario:<br>" + bitsHtml;
+  }
+
+  document.getElementById("calc").onclick = calculate;
+  document.querySelectorAll(".preset").forEach((p) => {
+    p.onclick = () => {
+      document.getElementById("ip").value = p.dataset.ip;
+      document.getElementById("cidr").value = p.dataset.cidr;
+      calculate();
+    };
+  });
+  ["ip", "cidr"].forEach((id) =>
+    document.getElementById(id).addEventListener("keydown", (e) => e.key === "Enter" && calculate())
+  );
+  calculate();
+</script>
+</body>
+</html>

@@ -20,13 +20,14 @@ import Ssh from "@/pages/Ssh";
 import Chat from "@/pages/Chat";
 import Database from "@/pages/Database";
 import Scripts from "@/pages/Scripts";
+import Plugins from "@/pages/Plugins";
 import ModulePlaceholder from "@/pages/ModulePlaceholder";
 
 /**
  * Every tab renders through here. Every module in the original roadmap —
  * Dashboard, Terminal, Security, Apps, Explorer, Processes, Services,
- * Network, Settings, Users, Logs, Editor, Git, Docker, SSH, and Base de
- * datos — is now wired to live data. Only Plugins is still a placeholder.
+ * Network, Settings, Users, Logs, Editor, Git, Docker, SSH, Base de
+ * datos, Scripts, y Plugins — esta conectado a datos reales.
  */
 export function ModuleView({ tab }: { tab: Tab }) {
   const mod = MODULES.find((m) => m.id === tab.moduleId)!;
@@ -72,6 +73,8 @@ export function ModuleView({ tab }: { tab: Tab }) {
       return <Database />;
     case "scripts":
       return <Scripts />;
+    case "plugins":
+      return <Plugins />;
     default:
       return <ModulePlaceholder icon={mod.icon} title={mod.label} description={mod.description} />;
   }

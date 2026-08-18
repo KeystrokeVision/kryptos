@@ -1,0 +1,8 @@
+{
+  "name": "JSON Formatter",
+  "version": "1.0.0",
+  "description": "Formatea, valida y minifica JSON, 100% local.",
+  "author": "KRYPTOS",
+  "icon": "🧾",
+  "entry": "index.html"
+}
