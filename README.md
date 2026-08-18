@@ -18,7 +18,7 @@
   [![Rust](https://img.shields.io/badge/Rust-stable-DE4A34?logo=rust&logoColor=white)](https://www.rust-lang.org)
   [![Platform](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux%20%7C%20macOS-0B0B0B)](#requisitos)
   [![Status](https://img.shields.io/badge/estado-en%20desarrollo%20activo-orange)](#pendiente-conocido)
-  [![License](https://img.shields.io/badge/uso-privado-lightgrey)](#licencia)
+  [![License](https://img.shields.io/badge/licencia-todos%20los%20derechos%20reservados-lightgrey)](LICENSE)
 
 </div>
 
@@ -58,6 +58,7 @@ datos **SQLite** local para auditoría e historial · **cero telemetría**.
 - [Estructura](#estructura)
 - [Versionado y releases](#versionado-y-releases)
 - [Pendiente conocido](#pendiente-conocido)
+- [Contribuir](#contribuir)
 - [Licencia](#licencia)
 
 ## Módulos
@@ -270,10 +271,18 @@ git push origin main --tags
 - **Modo Flota**: la única acción remota real por ahora es aislar la red del equipo destino (con confirmación explícita del lado que la recibe). Matar un proceso puntual o correr un script en otra instancia queda pendiente, entre otras cosas porque necesitan que quien pide la acción primero vea el estado del equipo destino (lista de procesos, etc.), no solo su nombre
 - **Arsenal**: instala vía `winget`/`pip` cuando existe un instalador desatendido para Windows; varias herramientas (varios binarios de Linux, apps que exigen configuración propia) solo muestran estado + enlace a la fuente oficial, sin instalación con un clic todavía
 
+## Contribuir
+
+¿Encontraste un bug o tenés una idea para un módulo? Ver
+[`CONTRIBUTING.md`](CONTRIBUTING.md) — plantillas de issue/PR, convenciones
+del proyecto, y cómo reportar una vulnerabilidad de seguridad.
+
 ## Licencia
 
-Proyecto privado — todos los derechos reservados. Sin licencia de uso público
-por el momento.
+Código disponible públicamente para lectura/referencia, pero **todos los
+derechos reservados** — ver [`LICENSE`](LICENSE). No está licenciado para
+uso, copia, modificación ni distribución sin autorización explícita del
+autor.
 
 ---
 

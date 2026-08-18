@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 Documentación (README)
+    url: https://github.com/KeystrokeVision/kryptos#readme
+    about: Módulos, requisitos y cómo correr el proyecto en desarrollo.
+  - name: 📜 Historial de cambios
+    url: https://github.com/KeystrokeVision/kryptos/blob/main/CHANGELOG.md
+    about: Qué cambió en cada versión.
